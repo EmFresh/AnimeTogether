@@ -1,0 +1,156 @@
+[0227/161838:INFO:user_input_monitor_win.cc(168)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0227/161842:ERROR:audio_output_device.cc(369)] IO loop going away before the audio device has been stopped
+[0227/161842:ERROR:audio_input_device.cc(269)] IO loop going away before the input device has been stopped
+[0227/163741.322:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/163756.015:INFO:user_input_monitor_win.cc(171)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0227/163812.534:INFO:user_input_monitor_win.cc(171)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0227/163816.970:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/165104.252:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/165741.013:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/170132.406:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/170431.307:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/170436.887:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/170438.201:INFO:user_input_monitor_win.cc(171)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0227/170449.972:INFO:user_input_monitor_win.cc(171)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0227/170452.622:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/170453.974:INFO:user_input_monitor_win.cc(171)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0227/170505.326:ERROR:audio_output_device.cc(425)] IO loop going away before the audio device has been stopped
+[0227/170506.672:INFO:user_input_monitor_win.cc(171)] RegisterRawInputDevices() failed for RIDEV_REMOVE: The parameter is incorrect. (0x57)
+[0502/064543.167:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064543.169:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064543.172:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064644.339:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064700.582:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 63
+[0502/064700.584:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 61
+[0502/064700.584:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 65
+[0502/064700.768:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 73
+[0502/064701.167:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 9
+[0502/064702.267:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 25
+[0502/064702.519:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 27
+[0502/064703.370:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 27
+[0502/064703.881:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 31
+[0502/064705.091:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 81
+[0502/064705.338:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 83
+[0502/064705.894:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 89
+[0502/064706.172:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 91
+[0502/064818.000:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064818.000:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064818.010:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/064857.311:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065242.692:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 1
+[0502/065242.704:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 21
+[0502/065242.706:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 27
+[0502/065242.728:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 93
+[0502/065245.263:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 1
+[0502/065246.177:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065255.868:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065259.654:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065308.926:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065308.978:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.014:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.014:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.021:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.046:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.085:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.130:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065309.212:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0502/065314.754:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065315.871:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065338.420:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065338.662:WARNING:stunport.cc(411)] STUN server address is incompatible.
+[0502/065338.663:WARNING:stunport.cc(411)] STUN server address is incompatible.
+[0502/065338.663:WARNING:stunport.cc(411)] STUN server address is incompatible.
+[0502/065338.762:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000112D99F61E0:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065338.765:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000112D99F7020:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065338.765:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000112D99F6570:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065338.765:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000112D99F6900:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065349.835:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 3
+[0502/065351.211:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065351.466:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065351.548:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[000001C32D8C9E20:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065351.548:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[000001C32D8CA540:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065351.548:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[000001C32D8C8FE0:data:2:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065351.548:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[000001C32D8CA8D0:data:2:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065352.788:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 31
+[0502/065352.788:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 33
+[0502/065352.793:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 35
+[0502/065352.793:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 37
+[0502/065358.327:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065359.710:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065400.743:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065405.215:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000019C1E1BC8E0:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065405.215:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000019C1E1BC550:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065405.359:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000019C1E1BCC70:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065405.359:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000019C1E1BC1C0:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065424.891:ERROR:browser_host_impl.cc(1548)] Invalid URL passed to CefBrowserHostImpl::LoadURL: 
+[0502/065445.272:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065447.304:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065509.853:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065653.678:ERROR:browser_host_impl.cc(1548)] Invalid URL passed to CefBrowserHostImpl::LoadURL: 
+[0502/065701.519:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065703.768:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.438:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.439:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.445:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.445:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.445:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.445:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.446:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.446:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.446:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065735.447:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.653:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.717:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.733:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.734:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.737:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.738:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.738:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.738:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.739:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065750.740:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0502/065821.583:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000021F002F6130:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065821.583:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000021F7BCB4F10:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065821.583:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000021F7BAF8D60:data:2:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065821.583:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[0000021F7BAB10B0:data:2:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0502/065830.994:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 1
+[0503/032250.162:ERROR:browser_host_impl.cc(1548)] Invalid URL passed to CefBrowserHostImpl::LoadURL: 
+[0503/034459.588:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/034459.589:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/034514.209:WARNING:htmlmediaelement.cpp(1954)] currentPlaybackPosition readyState = 4 but no webMeidaPlayer to provide currentPlaybackPosition
+[0503/035016.864:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/035016.864:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/035026.483:WARNING:htmlmediaelement.cpp(1954)] currentPlaybackPosition readyState = 4 but no webMeidaPlayer to provide currentPlaybackPosition
+[0503/035537.679:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0503/035537.782:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0503/035538.152:ERROR:render_media_log.cc(25)] MediaEvent: PIPELINE_ERROR demuxer: could not open
+[0503/035602.667:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/035602.668:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/035715.333:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 25
+[0503/035716.838:WARNING:spdy_session.cc(2224)] Received HEADERS for invalid stream 27
+[0503/040000.071:WARNING:htmlmediaelement.cpp(1954)] currentPlaybackPosition readyState = 4 but no webMeidaPlayer to provide currentPlaybackPosition
+[0503/040419.491:WARNING:htmlmediaelement.cpp(1954)] currentPlaybackPosition readyState = 4 but no webMeidaPlayer to provide currentPlaybackPosition
+[0503/060025.760:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060025.785:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060025.825:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060037.130:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060114.394:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060119.610:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060142.144:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060144.977:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060148.989:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060206.292:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060206.938:WARNING:stunport.cc(411)] STUN server address is incompatible.
+[0503/060206.939:WARNING:stunport.cc(411)] STUN server address is incompatible.
+[0503/060206.939:WARNING:stunport.cc(411)] STUN server address is incompatible.
+[0503/060207.018:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD0329F0:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060207.018:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD032D80:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060207.018:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD031F40:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060207.018:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD033110:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060211.134:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD031BB0:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060211.135:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD032D80:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060211.141:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD032660:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060211.141:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[00000288AD031820:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060230.110:WARNING:quota_manager.cc(1833)] Create directory failed for path
+[0503/060240.617:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[000001BBA7EE8D90:data:1:0:local:Net[any:0.0.0.x/0:Unknown]]: SetOption(5, 0) failed: 0
+[0503/060240.617:WARNING:p2ptransportchannel.cc(518)] Jingle:Port[000001BBA7EE9120:data:1:0:local:Net[any:0:0:0:x:x:x:x:x/0:Unknown]]: SetOption(5, 0) failed: 0
