@@ -102,4 +102,9 @@ public class VideoStuff : MonoBehaviour
     public void skipIntro() =>
         player.time = (player.time + introSkip) < player.length ? player.time + introSkip : player.length;
 
+    public void mute()
+    {
+        for (ushort a = 0; a < player.audioTrackCount; ++a)
+            player.SetDirectAudioMute(a, !player.GetDirectAudioMute(a));
+    }
 }

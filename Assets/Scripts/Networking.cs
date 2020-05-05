@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Networking
 {
-
+    #region Enums
     public enum IPVersion : int
     {
         IPUnknown,
@@ -14,7 +14,8 @@ public class Networking
     }
     public enum SocketOption : int
     {
-        TCP_NoDelay
+        TCP_NoDelay,
+        IPV6_Only,
     }
     public enum SocketType : int
     {
@@ -24,14 +25,38 @@ public class Networking
     public enum PResult : int
     {
         P_Success,
-        P_GenericError
+        P_UnknownError
+    }
+    enum EventsPoll
+    {
+        EP_RDBAND = 0x0200, //Priority band (out-of-band) data may be read without blocking.
+        EP_RDNORM = 0x0100, //Normal data may be read without blocking.
+        EP_WRNORM = 0x0010, //Normal data may be written without blocking.
+        EP_IN = EP_RDBAND | EP_RDNORM, //combination of the EPRDNORM and EPRDBAND
+        EP_OUT = EP_WRNORM, //same as the EPWRNORM
     }
 
+    enum REventsPoll
+    {
+        REP_ERR = 0x0001, //An error has occurred.
+        REP_NVAL = 0x0004, //An invalid socket was used.
+        REP_HUP = 0x0002, //A stream-oriented connection was either disconnected or aborted.
+        REP_RDBAND = 0x0200, //Priority band (out-of-band) data may be read without blocking.
+        REP_RDNORM = 0x0100, //Normal data may be read without blocking.
+        REP_WRNORM = 0x0010, //Normal data may be written without blocking.
+        REP_IN = REP_RDBAND | REP_RDNORM, //combination of the REPRDNORM and REPRDBAND
+        REP_OUT = REP_WRNORM, //same as the REPWRNORM
+    }
+    #endregion
+
+    #region Structs
     [StructLayout(LayoutKind.Sequential)]
     public struct SocketData
     {
         public IPVersion m_IPVersion;
         public UInt64 m_hnd;
+        uint pollCount;
+        short revents;
     };
 
     [StructLayout(LayoutKind.Sequential)]
@@ -53,52 +78,99 @@ public class Networking
         [NativeDisableUnsafePtrRestriction] public IntPtr m_ipBytes;
         public short m_port;
     };
+    #endregion
+
+    #region Variables
+    public static ref readonly bool isNetworkInit => ref _isNetworkinit;
 
     private static bool _isNetworkinit = false;
-    public static ref readonly bool isNetworkInit => ref _isNetworkinit;
-    const string DLL = "Networking.DLL";
+    const string DLL = "/_Plugins/Networking.DLL";
+    static IntPtr _pluginHandle = IntPtr.Zero;
+    #endregion
+
+    #region Plugin Handling
+    public static void initNetworkPlugin()
+    {
+        if (_pluginHandle != IntPtr.Zero)return;
+
+        if ((_pluginHandle = ManualPluginImporter.OpenLibrary(Application.dataPath + DLL)) == IntPtr.Zero)return;
+
+        getlastnetworkerror = ManualPluginImporter.GetDelegate<getLastNetworkErrorDelegate>(_pluginHandle, "getLastNetworkError");
+        initnetwork = ManualPluginImporter.GetDelegate<initNetworkDelegate>(_pluginHandle, "initNetwork");
+        shutdownnetwork = ManualPluginImporter.GetDelegate<shutdownNetworkDelegate>(_pluginHandle, "shutdownNetwork");
+        createIPEndpointData = ManualPluginImporter.GetDelegate<createIPEndpointDataDelegate>(_pluginHandle, "createIPEndpointData");
+        initSocketData = ManualPluginImporter.GetDelegate<initSocketDataDelegate>(_pluginHandle, "initSocketData");
+        createSocket = ManualPluginImporter.GetDelegate<createSocketDelegate>(_pluginHandle, "createSocket");
+        closeSocket = ManualPluginImporter.GetDelegate<closeSocketDelegate>(_pluginHandle, "closeSocket");
+        setBlocking = ManualPluginImporter.GetDelegate<setBlockingDelegate>(_pluginHandle, "setBlocking");
+        bindEndpointToSocket = ManualPluginImporter.GetDelegate<bindEndpointToSocketDelegate>(_pluginHandle, "bindEndpointToSocket");
+        listenEndpointToSocket = ManualPluginImporter.GetDelegate<listenEndpointToSocketDelegate>(_pluginHandle, "listenEndpointToSocket");
+        acceptSocket = ManualPluginImporter.GetDelegate<acceptSocketDelegate>(_pluginHandle, "acceptSocket");
+        connectEndpoint = ManualPluginImporter.GetDelegate<connectEndpointDelegate>(_pluginHandle, "connectEndpoint");
+        sendPacketData = ManualPluginImporter.GetDelegate<sendPacketDataDelegate>(_pluginHandle, "sendPacketData");
+        recvPacketData = ManualPluginImporter.GetDelegate<recvPacketDataDelegate>(_pluginHandle, "recvPacketData");
+        sendAllPacketData = ManualPluginImporter.GetDelegate<sendAllPacketDataDelegate>(_pluginHandle, "sendAllPacketData");
+        recvAllPacketData = ManualPluginImporter.GetDelegate<recvAllPacketDataDelegate>(_pluginHandle, "recvAllPacketData");
+        recvFromPacketData = ManualPluginImporter.GetDelegate<recvFromPacketDataDelegate>(_pluginHandle, "recvFromPacketData");
+        sendToPacketData = ManualPluginImporter.GetDelegate<sendToPacketDataDelegate>(_pluginHandle, "sendToPacketData");
+    }
+
+    public static void closeNetworkPlugin()
+    {
+        if (_pluginHandle != IntPtr.Zero)
+            ManualPluginImporter.CloseLibrary(_pluginHandle);
+    }
+   
+    #endregion
+
 
     //ERROR//
 
     ///<summary>
     ///gets the last error that happened
     ///</summary>
-    [DllImport(DLL)] private static extern IntPtr getLastNetworkError(int idk);
+    private static getLastNetworkErrorDelegate getlastnetworkerror;
+    private delegate IntPtr getLastNetworkErrorDelegate(int idk);
     public static string getLastNetworkError()
     {
-        IntPtr ptr = getLastNetworkError(0);
+        IntPtr ptr = getlastnetworkerror(0);
         return Marshal.PtrToStringAnsi(ptr);
     }
 
     public static void PrintError(object ob) => Debug.LogError(ob);
+    
+    
     //NETWORK//
 
     ///<summary>
     ///initializes Winsock
     ///</summary>
-    [DllImport(DLL)] private static extern bool initNetwork(int a);
+    private static initNetworkDelegate initnetwork;
+    private delegate bool initNetworkDelegate(int a);
     ///<summary>
     ///initializes Winsock
     ///</summary>
     public static bool initNetwork()
     {
         if (!_isNetworkinit)
-            if (initNetwork(0))
+            if (initnetwork(0))
                 return _isNetworkinit = true;
 
         return false;
     }
+
     ///<summary>
     ///Shutdown Winsoc
     ///</summary>
-    [DllImport(DLL)] private static extern bool shutdownNetwork(int a);
+    private static shutdownNetworkDelegate shutdownnetwork;
+    private delegate bool shutdownNetworkDelegate(int a);
     ///<summary>
     ///Shutdown Winsoc
     ///</summary>
     public static bool shutdownNetwork()
     {
         if (_isNetworkinit)
-            if (shutdownNetwork(0))
+            if (shutdownnetwork(0))
                 return !(_isNetworkinit = false); //true
 
         return false;
@@ -109,45 +181,58 @@ public class Networking
     ///<summary>
     ///Creates a new IPEndpoint handle for a given IP and port. Multiple IPEndpoints can be created
     ///</summary>
-    [DllImport(DLL)] public static extern IPEndpointData createIPEndpointData([MarshalAs(UnmanagedType.LPStr)] string ip, short port);
+    public static createIPEndpointDataDelegate createIPEndpointData;
+    public delegate IPEndpointData createIPEndpointDataDelegate([MarshalAs(UnmanagedType.LPStr)] string ip, short port, IPVersion ipv = IPVersion.IPv4);
 
     //SOCKET//
 
     ///<summary>
     ///Creates a new Socket handle for manageing IPEndpoints. 
     ///</summary>
-    [DllImport(DLL)] public static extern SocketData initSocketData();
+    public static initSocketDataDelegate initSocketData;
+    public delegate SocketData initSocketDataDelegate(IPVersion ipv = IPVersion.IPv4);
     ///<summary>
     ///initializes the socket to use UDP or TCP conection types
     ///</summary>
-    [DllImport(DLL)] public static extern PResult createSocket(in SocketData soc, SocketType typ = SocketType.TCP);
+    public static createSocketDelegate createSocket;
+    public delegate PResult createSocketDelegate(in SocketData soc, SocketType typ = SocketType.TCP, bool blocking = true);
+    ///<summary>
+    ///sets a socket to be either blocking or non-blocking. Must be called after socket is created
+    ///</summary>
+    public static setBlockingDelegate setBlocking;
+    public delegate PResult setBlockingDelegate(in SocketData soc, bool blocking = true);
 
     ///<summary>
     ///closes socket so it can not be used unless createSocket() is called once again.
     ///</summary>
-    [DllImport(DLL)] public static extern PResult closeSocket(in SocketData soc);
+    public static closeSocketDelegate closeSocket;
+    public delegate PResult closeSocketDelegate(in SocketData soc);
 
     ///<summary>
     ///Bind Endpoint to socket.
     ///</summary>
-    [DllImport(DLL)] public static extern PResult bindEndpointToSocket(in IPEndpointData ip, in SocketData soc);
+    public static bindEndpointToSocketDelegate bindEndpointToSocket;
+    public delegate PResult bindEndpointToSocketDelegate(in IPEndpointData ip, in SocketData soc);
     ///<summary>
     ///Listens for endpoint connection to the socket. It will block until a new connection is found. 
     ///</summary>
-    [DllImport(DLL)] public static extern PResult listenEndpointToSocket(in IPEndpointData ip, in SocketData soc, int backlog = 5);
+    public static listenEndpointToSocketDelegate listenEndpointToSocket;
+    public delegate PResult listenEndpointToSocketDelegate(in IPEndpointData ip, in SocketData soc, int backlog = 5);
     ///<summary>
     ///Attempts to accept the listened connection. 
     ///</summary>
-    [DllImport(DLL)] public static extern PResult acceptSocket(in SocketData soc, in SocketData outsoc);
+    public static acceptSocketDelegate acceptSocket;
+    public delegate PResult acceptSocketDelegate(in SocketData soc, in SocketData outsoc);
     ///<summary>
     ///Connects endpoint to socket
     ///</summary>
-    [DllImport(DLL)] public static extern PResult connectEndpoint(in IPEndpointData ip, in SocketData soc);
-
+    public static connectEndpointDelegate connectEndpoint;
+    public delegate PResult connectEndpointDelegate(in IPEndpointData ip, in SocketData soc);
     // Sending Data
     // TCP
 
-    [DllImport(DLL)] private static extern PResult sendPacketData(in SocketData soc, IntPtr data, int datasize, out int bytesSent);
+    private delegate PResult sendPacketDataDelegate(in SocketData soc, IntPtr data, int datasize, out int bytesSent);
+    private static sendPacketDataDelegate sendPacketData;
     ///<summary>
     ///Send packet over TCP server. Not guaranteed to send all bytes.
     ///</summary>
@@ -195,7 +280,8 @@ public class Networking
         return res;
     }
 
-    [DllImport(DLL)] private static extern PResult recvPacketData(in SocketData soc, IntPtr dest, int numberOfBytes, out int bytesRecv);
+    private delegate PResult recvPacketDataDelegate(in SocketData soc, IntPtr dest, int numberOfBytes, out int bytesRecv);
+    private static recvPacketDataDelegate recvPacketData;
     ///<summary>
     ///Receive packet over TCP server. Not guaranteed to recieve all bytes.
     ///</summary>
@@ -251,7 +337,8 @@ public class Networking
         return res;
     }
 
-    [DllImport(DLL)] private static extern PResult sendAllPacketData(in SocketData soc, IntPtr data, int numberOfBytes);
+    private delegate PResult sendAllPacketDataDelegate(in SocketData soc, IntPtr data, int numberOfBytes);
+    private static sendAllPacketDataDelegate sendAllPacketData;
     ///<summary>
     ///Send entire packet over TCP server. guaranteed to send all bytes.
     ///</summary>
@@ -280,7 +367,8 @@ public class Networking
         return res;
     }
 
-    [DllImport(DLL)] private static extern PResult recvAllPacketData(in SocketData soc, IntPtr dest, int numberOfBytes);
+    private delegate PResult recvAllPacketDataDelegate(in SocketData soc, IntPtr dest, int numberOfBytes);
+    private static recvAllPacketDataDelegate recvAllPacketData;
     ///<summary>
     ///Receive entire packet over TCP server. guaranteed to recieve all bytes.
     ///</summary>
@@ -316,7 +404,8 @@ public class Networking
 
     //UDP
 
-    [DllImport(DLL)] private static extern PResult recvFromPacketData(in SocketData soc, IntPtr data, int numberOfBytes, out int bytesRecv, out IPEndpointData ip);
+    private delegate PResult recvFromPacketDataDelegate(in SocketData soc, IntPtr data, int numberOfBytes, out int bytesRecv, out IPEndpointData ip);
+    private static recvFromPacketDataDelegate recvFromPacketData;
     ///<summary>
     ///Receive packet over UDP server. Not guaranteed to recieve all bytes.
     ///</summary>
@@ -366,8 +455,8 @@ public class Networking
     ///<summary>
     ///Receive packet over UDP server. Not guaranteed to recieve all bytes.
     ///</summary>
-    public static PResult recvFromPacket<T>(in SocketData soc, out T data, out IPEndpointData ip) => 
-    recvFromPacket(soc, out data, Marshal.SizeOf<T>(), out ip);
+    public static PResult recvFromPacket<T>(in SocketData soc, out T data, out IPEndpointData ip) =>
+        recvFromPacket(soc, out data, Marshal.SizeOf<T>(), out ip);
 
     ///<summary>
     ///Receive packet over UDP server. Not guaranteed to recieve all bytes.
@@ -378,7 +467,8 @@ public class Networking
         return recvFromPacket(in soc, out data, numberOfBytes, out bytesRecv, out ip);
     }
 
-    [DllImport(DLL)] private static extern PResult sendToPacketData(in SocketData soc, IntPtr data, int numberOfBytes, out int bytesSent, in IPEndpointData ip);
+    private delegate PResult sendToPacketDataDelegate(in SocketData soc, IntPtr data, int numberOfBytes, out int bytesSent, in IPEndpointData ip);
+    private static sendToPacketDataDelegate sendToPacketData;
     ///<summary>
     ///Send packet over UDP server. Not guaranteed to send all bytes.
     ///</summary>

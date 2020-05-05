@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class FadeInOut : MonoBehaviour
 {
-    public float delay, speedInSec;
+    public float delay, fadeoutTime,fadeinTime;
     float currentTime = 0, fadeTime = 1;
     bool isFadeOut = true;
 
@@ -16,7 +16,7 @@ public class FadeInOut : MonoBehaviour
     void Awake()
     {
         controls = new Controls();
-        controls.VideoPlayer.MouseInteract.performed += ctx => InvokeRepeating("fadeIn", 0, .01f);;
+        controls.VideoPlayer.MouseInteract.performed += ctx => fadeInInvoke();
     }
 
     void OnEnable()
@@ -45,17 +45,16 @@ public class FadeInOut : MonoBehaviour
 
     public void fadeIn()
     {
-        isFadeOut = false;
+        isFadeOut = true;
+        currentTime = 0;
         CancelInvoke("fadeOut");
 
         var cg = GetComponent<CanvasGroup>();
         cg.blocksRaycasts = true; //enables the buttons to be pressed
-        cg.alpha = ((fadeTime += Time.deltaTime) / speedInSec);
-        currentTime = 0;
+        cg.alpha = ((fadeTime += Time.deltaTime) / fadeoutTime);
         if (GetComponent<CanvasGroup>().alpha >= 1)
         {
-            isFadeOut = true;
-            fadeTime = speedInSec;
+            fadeTime = fadeoutTime;
             GetComponent<CanvasGroup>().alpha = 1;
             CancelInvoke("fadeIn");
         }
@@ -68,7 +67,7 @@ public class FadeInOut : MonoBehaviour
         var cg = GetComponent<CanvasGroup>();
 
         cg.blocksRaycasts = false; //block the buttons from being pressed
-        cg.alpha = ((fadeTime -= Time.deltaTime) / speedInSec);
+        cg.alpha = ((fadeTime -= Time.deltaTime) / fadeoutTime);
         if (GetComponent<CanvasGroup>().alpha <= 0)
         {
             fadeTime = 0;
