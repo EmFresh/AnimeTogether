@@ -386,6 +386,11 @@ PrefabInstance:
       propertyPath: KeepUIVisible
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114000010958089028, guid: a157ba4f6c2697e45940e6c6b280da74,
+        type: 3}
+      propertyPath: InitialURL
+      value: https://ww5.dubbedanime.net/episode/58423-waiting-in-the-summer-episode-1-english-dubbed
+      objectReference: {fileID: 0}
     - target: {fileID: 224000013188487422, guid: a157ba4f6c2697e45940e6c6b280da74,
         type: 3}
       propertyPath: m_AnchoredPosition.y

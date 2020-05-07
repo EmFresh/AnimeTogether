@@ -36,6 +36,22 @@
                     "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "Volume Up",
+                    "type": "PassThrough",
+                    "id": "c5d96f4c-bc3a-4d27-ba41-f8bc712092c6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Volume Down",
+                    "type": "PassThrough",
+                    "id": "b679467e-1cac-4726-826b-6f2fd8c75756",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -135,6 +151,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Mouse Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bfdebf43-22a4-4527-bc77-26c26ff86e1e",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Volume Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c78a833f-b971-4f90-89b7-5f448cc57508",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Volume Down",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

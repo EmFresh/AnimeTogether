@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 namespace SimpleWebBrowser
 {
 
@@ -127,6 +128,7 @@ namespace SimpleWebBrowser
             //status - threading
             private bool _setUrl = false;
             private string _setUrlString = "";
+            private static string assetsPath;
 
             //input
             //private GraphicRaycaster _raycaster;
@@ -178,7 +180,7 @@ namespace SimpleWebBrowser
             void Awake()
             {
                 _mainEngine = new BrowserEngine();
-
+                assetsPath = Application.consoleLogPath;
                 if (RandomMemoryFile)
                 {
                     Guid memid = Guid.NewGuid();
@@ -231,25 +233,27 @@ namespace SimpleWebBrowser
                     {
                         htmlString = client.DownloadString(url);
                     }
+                    System.IO.File.WriteAllText(@"Assets\HTMLRead\html.txt", htmlString);
 
                     // Now feed it to HTML Agility Pack:
                     HtmlDocument doc = new HtmlDocument();
                     doc.LoadHtml(htmlString);
+                   
 
                     // Now you could query the DOM. For example you could extract
                     // all href attributes from all anchors:
-                    foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//div"))
+                    foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//video"))
                     {
                         var href = link.GetAttributes();
                         foreach (var val in href)
                         {
-                           print(val.Value);
+                            print(val.Value);
                         }
                     }
 
                     readHtml = true;
                 }
-                catch {}
+                catch (Exception e) { print(e); }
             }
 
             #endregion

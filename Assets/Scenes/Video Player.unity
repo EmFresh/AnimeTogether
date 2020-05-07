@@ -2200,12 +2200,12 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 1429864160}
+  m_TargetGraphic: {fileID: 137123370}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2002413654}
-        m_MethodName: skipIntro
+        m_MethodName: mute
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2451,7 +2451,7 @@ VideoPlayer:
   - {fileID: 0}
   m_DirectAudioVolumes:
   - 1
-  m_Url: https://s5.mp4.sh/d/98cce0dd58c2.mp4?st=pAI1BqT4OALUXvJZtMCixg&e=1588753939
+  m_Url: 
   m_EnabledAudioTracks: 01
   m_DirectAudioMutes: 00
   m_ControlledAudioTrackCount: 1
@@ -2488,3 +2488,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 2002413652}
   video: {fileID: 524016899}
+  isClient: 0
+  ipAddress: localhost
+  videoURL: https://s1.mp4upload.com:282/d/qsx5b4jlz3b4quuouswq4n2ec2uvlgu45j2otopwocdljhg5lgdw7pnb/video.mp4

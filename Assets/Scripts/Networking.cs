@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using System.Runtime.InteropServices;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-public class Networking
+public class Networking : MonoBehaviour
 {
     #region Enums
     public enum IPVersion : int
@@ -84,7 +85,7 @@ public class Networking
     public static ref readonly bool isNetworkInit => ref _isNetworkinit;
 
     private static bool _isNetworkinit = false;
-    const string DLL = "/_Plugins/Networking.DLL";
+    const string DLL = "/Plugins/Networking.DLL";
     static IntPtr _pluginHandle = IntPtr.Zero;
     #endregion
 
@@ -93,20 +94,20 @@ public class Networking
     {
         if (_pluginHandle != IntPtr.Zero)return;
 
-        if ((_pluginHandle = ManualPluginImporter.OpenLibrary(Application.dataPath + DLL)) == IntPtr.Zero)return;
+        if ((_pluginHandle = ManualPluginImporter.OpenLibrary(Application.dataPath + DLL)) == IntPtr.Zero)return; //No DLL found
 
         getlastnetworkerror = ManualPluginImporter.GetDelegate<getLastNetworkErrorDelegate>(_pluginHandle, "getLastNetworkError");
         initnetwork = ManualPluginImporter.GetDelegate<initNetworkDelegate>(_pluginHandle, "initNetwork");
         shutdownnetwork = ManualPluginImporter.GetDelegate<shutdownNetworkDelegate>(_pluginHandle, "shutdownNetwork");
         createIPEndpointData = ManualPluginImporter.GetDelegate<createIPEndpointDataDelegate>(_pluginHandle, "createIPEndpointData");
-        initSocketData = ManualPluginImporter.GetDelegate<initSocketDataDelegate>(_pluginHandle, "initSocketData");
-        createSocket = ManualPluginImporter.GetDelegate<createSocketDelegate>(_pluginHandle, "createSocket");
+        createSocketData = ManualPluginImporter.GetDelegate<createSocketDataDelegate>(_pluginHandle, "createSocketData");
+        initSocket = ManualPluginImporter.GetDelegate<initSocketDelegate>(_pluginHandle, "initSocket");
         closeSocket = ManualPluginImporter.GetDelegate<closeSocketDelegate>(_pluginHandle, "closeSocket");
         setBlocking = ManualPluginImporter.GetDelegate<setBlockingDelegate>(_pluginHandle, "setBlocking");
         bindEndpointToSocket = ManualPluginImporter.GetDelegate<bindEndpointToSocketDelegate>(_pluginHandle, "bindEndpointToSocket");
         listenEndpointToSocket = ManualPluginImporter.GetDelegate<listenEndpointToSocketDelegate>(_pluginHandle, "listenEndpointToSocket");
         acceptSocket = ManualPluginImporter.GetDelegate<acceptSocketDelegate>(_pluginHandle, "acceptSocket");
-        connectEndpoint = ManualPluginImporter.GetDelegate<connectEndpointDelegate>(_pluginHandle, "connectEndpoint");
+        connectEndpointToSocket = ManualPluginImporter.GetDelegate<connectEndpointToSocketDelegate>(_pluginHandle, "connectEndpointToSocket");
         sendPacketData = ManualPluginImporter.GetDelegate<sendPacketDataDelegate>(_pluginHandle, "sendPacketData");
         recvPacketData = ManualPluginImporter.GetDelegate<recvPacketDataDelegate>(_pluginHandle, "recvPacketData");
         sendAllPacketData = ManualPluginImporter.GetDelegate<sendAllPacketDataDelegate>(_pluginHandle, "sendAllPacketData");
@@ -117,12 +118,28 @@ public class Networking
 
     public static void closeNetworkPlugin()
     {
+        shutdownNetwork();
+        Thread.Sleep(1500);
+
         if (_pluginHandle != IntPtr.Zero)
             ManualPluginImporter.CloseLibrary(_pluginHandle);
     }
-   
-    #endregion
 
+    /// <summary>
+    /// Awake is called when the script instance is being loaded.
+    /// </summary>
+    void Awake()
+    {
+        initNetworkPlugin();
+    }
+    /// <summary>
+    /// Callback sent to all game objects before the application is quit.
+    /// </summary>
+    void OnApplicationQuit()
+    {
+        closeNetworkPlugin();
+    }
+    #endregion
 
     //ERROR//
 
@@ -138,8 +155,7 @@ public class Networking
     }
 
     public static void PrintError(object ob) => Debug.LogError(ob);
-    
-    
+
     //NETWORK//
 
     ///<summary>
@@ -189,13 +205,13 @@ public class Networking
     ///<summary>
     ///Creates a new Socket handle for manageing IPEndpoints. 
     ///</summary>
-    public static initSocketDataDelegate initSocketData;
-    public delegate SocketData initSocketDataDelegate(IPVersion ipv = IPVersion.IPv4);
+    public static createSocketDataDelegate createSocketData;
+    public delegate SocketData createSocketDataDelegate(IPVersion ipv = IPVersion.IPv4);
     ///<summary>
     ///initializes the socket to use UDP or TCP conection types
     ///</summary>
-    public static createSocketDelegate createSocket;
-    public delegate PResult createSocketDelegate(in SocketData soc, SocketType typ = SocketType.TCP, bool blocking = true);
+    public static initSocketDelegate initSocket;
+    public delegate PResult initSocketDelegate(in SocketData soc, SocketType typ = SocketType.TCP, bool blocking = true);
     ///<summary>
     ///sets a socket to be either blocking or non-blocking. Must be called after socket is created
     ///</summary>
@@ -226,8 +242,8 @@ public class Networking
     ///<summary>
     ///Connects endpoint to socket
     ///</summary>
-    public static connectEndpointDelegate connectEndpoint;
-    public delegate PResult connectEndpointDelegate(in IPEndpointData ip, in SocketData soc);
+    public static connectEndpointToSocketDelegate connectEndpointToSocket;
+    public delegate PResult connectEndpointToSocketDelegate(in IPEndpointData ip, in SocketData soc);
     // Sending Data
     // TCP
 

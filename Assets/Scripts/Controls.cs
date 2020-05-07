@@ -49,6 +49,22 @@ public class @Controls : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Axis"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Volume Up"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""c5d96f4c-bc3a-4d27-ba41-f8bc712092c6"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""Volume Down"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""b679467e-1cac-4726-826b-6f2fd8c75756"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -150,6 +166,28 @@ public class @Controls : IInputActionCollection, IDisposable
                     ""action"": ""Mouse Interact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bfdebf43-22a4-4527-bc77-26c26ff86e1e"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Volume Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c78a833f-b971-4f90-89b7-5f448cc57508"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Volume Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -162,6 +200,8 @@ public class @Controls : IInputActionCollection, IDisposable
         m_VideoPlayer_SeekLeft = m_VideoPlayer.FindAction("Seek Left", throwIfNotFound: true);
         m_VideoPlayer_SeekRight = m_VideoPlayer.FindAction("Seek Right", throwIfNotFound: true);
         m_VideoPlayer_MouseInteract = m_VideoPlayer.FindAction("Mouse Interact", throwIfNotFound: true);
+        m_VideoPlayer_VolumeUp = m_VideoPlayer.FindAction("Volume Up", throwIfNotFound: true);
+        m_VideoPlayer_VolumeDown = m_VideoPlayer.FindAction("Volume Down", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -215,6 +255,8 @@ public class @Controls : IInputActionCollection, IDisposable
     private readonly InputAction m_VideoPlayer_SeekLeft;
     private readonly InputAction m_VideoPlayer_SeekRight;
     private readonly InputAction m_VideoPlayer_MouseInteract;
+    private readonly InputAction m_VideoPlayer_VolumeUp;
+    private readonly InputAction m_VideoPlayer_VolumeDown;
     public struct VideoPlayerActions
     {
         private @Controls m_Wrapper;
@@ -223,6 +265,8 @@ public class @Controls : IInputActionCollection, IDisposable
         public InputAction @SeekLeft => m_Wrapper.m_VideoPlayer_SeekLeft;
         public InputAction @SeekRight => m_Wrapper.m_VideoPlayer_SeekRight;
         public InputAction @MouseInteract => m_Wrapper.m_VideoPlayer_MouseInteract;
+        public InputAction @VolumeUp => m_Wrapper.m_VideoPlayer_VolumeUp;
+        public InputAction @VolumeDown => m_Wrapper.m_VideoPlayer_VolumeDown;
         public InputActionMap Get() { return m_Wrapper.m_VideoPlayer; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -244,6 +288,12 @@ public class @Controls : IInputActionCollection, IDisposable
                 @MouseInteract.started -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnMouseInteract;
                 @MouseInteract.performed -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnMouseInteract;
                 @MouseInteract.canceled -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnMouseInteract;
+                @VolumeUp.started -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnVolumeUp;
+                @VolumeUp.performed -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnVolumeUp;
+                @VolumeUp.canceled -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnVolumeUp;
+                @VolumeDown.started -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnVolumeDown;
+                @VolumeDown.performed -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnVolumeDown;
+                @VolumeDown.canceled -= m_Wrapper.m_VideoPlayerActionsCallbackInterface.OnVolumeDown;
             }
             m_Wrapper.m_VideoPlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -260,6 +310,12 @@ public class @Controls : IInputActionCollection, IDisposable
                 @MouseInteract.started += instance.OnMouseInteract;
                 @MouseInteract.performed += instance.OnMouseInteract;
                 @MouseInteract.canceled += instance.OnMouseInteract;
+                @VolumeUp.started += instance.OnVolumeUp;
+                @VolumeUp.performed += instance.OnVolumeUp;
+                @VolumeUp.canceled += instance.OnVolumeUp;
+                @VolumeDown.started += instance.OnVolumeDown;
+                @VolumeDown.performed += instance.OnVolumeDown;
+                @VolumeDown.canceled += instance.OnVolumeDown;
             }
         }
     }
@@ -270,5 +326,7 @@ public class @Controls : IInputActionCollection, IDisposable
         void OnSeekLeft(InputAction.CallbackContext context);
         void OnSeekRight(InputAction.CallbackContext context);
         void OnMouseInteract(InputAction.CallbackContext context);
+        void OnVolumeUp(InputAction.CallbackContext context);
+        void OnVolumeDown(InputAction.CallbackContext context);
     }
 }
