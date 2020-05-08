@@ -232,8 +232,10 @@ public class VideoStuff : MonoBehaviour
         player.url = staticVideoURL;
         player.errorReceived += VideoError;
         player.prepareCompleted += VideoReady;
-        if (staticVideoURL != "")
-            player.Prepare();
+
+        if (!isClient)
+            if (staticVideoURL != "")
+                player.Prepare();
 
         initNetworkPlugin();
         initNetwork();
@@ -264,7 +266,9 @@ public class VideoStuff : MonoBehaviour
             {
 
                 print("connected to host");
-            }else{
+            }
+            else
+            {
                 PrintError(getLastNetworkError());
             }
         }
