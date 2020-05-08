@@ -237,8 +237,8 @@ public class VideoStuff : MonoBehaviour
 
         initNetworkPlugin();
         initNetwork();
-        ip = createIPEndpointData.Invoke(ipAddress, 22, IPVersion.IPv6);
-        soc = createSocketData.Invoke(IPVersion.IPv6);
+        ip = createIPEndpointData.Invoke(ipAddress, 22, IPVersion.IPv4);
+        soc = createSocketData.Invoke(IPVersion.IPv4);
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
         {
@@ -264,6 +264,8 @@ public class VideoStuff : MonoBehaviour
             {
 
                 print("connected to host");
+            }else{
+                PrintError(getLastNetworkError());
             }
         }
 
