@@ -27,7 +27,7 @@ public class VideoStuff : MonoBehaviour
     private Controls controls;
     static bool closeNetwork = false;
 
-    static List<Client> connections;
+    static List<Client> connections = new List<Client>();
 
     //  UnityWebRequest web;
     float seekSpeed = 5, introSkip = 85; //1:25
@@ -149,10 +149,12 @@ public class VideoStuff : MonoBehaviour
         public SocketData socket;
         public void Execute()
         {
-            Packet unknown = new Packet();
-            IntPtr tmp;
+
+            IntPtr tmp = IntPtr.Zero;
             while (true)
             {
+                Unknown unknown;
+                unknown = new Unknown();
                 recvAllPacket(socket, out unknown);
 
                 switch (unknown.type)
@@ -230,28 +232,47 @@ public class VideoStuff : MonoBehaviour
         player.url = staticVideoURL;
         player.errorReceived += VideoError;
         player.prepareCompleted += VideoReady;
-        player.Prepare();
+        if (staticVideoURL != "")
+            player.Prepare();
 
         initNetworkPlugin();
         initNetwork();
-        ip = createIPEndpointData.Invoke(ipAddress, 8080);
+        ip = createIPEndpointData.Invoke(ipAddress, 22, IPVersion.IPv6);
         soc = createSocketData.Invoke(IPVersion.IPv6);
-        initSocket.Invoke(soc);
-         if (initSocket.Invoke(soc) == PResult.P_UnknownError)return;
-        
-         if (!isClient) //server
-         {
-             bindEndpointToSocket.Invoke(ip, soc);
-             jobListen = new ListenOnNetworkJob()
+
+        if (initSocket.Invoke(soc) == PResult.P_UnknownError)
+        {
+            print(getLastNetworkError());
+            return;
+        }
+        if (!isClient) //server
+        {
+
+            jobListen = new ListenOnNetworkJob()
             {
                 socket = soc,
                 ip = ip
             };
-        
-             hndListen = jobListen.Schedule();
-        
-             //TODO: create a network listening job 
-         }
+
+            hndListen = jobListen.Schedule();
+
+            //TODO: create a network listening job 
+        }
+        else
+        {
+            if (connectEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
+            {
+
+                print("connected to host");
+            }
+        }
+
+        jobReceive = new ReceiveNetworkJob()
+        {
+            ip = ip,
+            socket = soc
+        };
+        hndReceive = jobReceive.Schedule();
     }
 
     void VideoError(VideoPlayer source, string message)
@@ -261,17 +282,13 @@ public class VideoStuff : MonoBehaviour
         print("attempting retry");
 
         var tmp = source.url;
-        source.url = "";
-        source.Prepare();
-
-        source.url = tmp;
         source.Prepare();
     }
 
     void VideoReady(VideoPlayer source)
     {
         print("Video is prepared!!");
-     //   playNPause();
+        //   playNPause();
     }
 
     // Start is called before the first frame update
@@ -344,7 +361,7 @@ public class VideoStuff : MonoBehaviour
         state.pos = player.time;
         state.seek = false;
     }
-    
+
     public void playNPause()
     {
         if (player.isPaused || !player.isPlaying)
@@ -389,6 +406,16 @@ public class VideoStuff : MonoBehaviour
     void OnApplicationQuit()
     {
         closeNetwork = true;
+        if (isNetworkInit)
+        {
+            if (!shutdownNetwork())
+                PrintError(getLastNetworkError());
+            //closeSocket(soc);
+
+            closeSocket.Invoke(soc);
+            hndReceive.Complete();
+            hndListen.Complete();
+        }
         closeNetworkPlugin();
     }
 }
