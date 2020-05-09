@@ -77,7 +77,7 @@ public class Networking
         [NativeDisableUnsafePtrRestriction] public IntPtr m_ipString;
         public uint m_ipBytesSize;
         [NativeDisableUnsafePtrRestriction] public IntPtr m_ipBytes;
-        public short m_port;
+        public ushort m_port;
     };
     #endregion
 

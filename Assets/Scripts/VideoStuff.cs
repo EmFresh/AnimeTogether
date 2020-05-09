@@ -137,7 +137,7 @@ public class VideoStuff : MonoBehaviour
                 connections.Add(tmp);
 
                 print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
-                print("Port: "+connectIP.m_port);
+                print("Port: " + connectIP.m_port);
 
                 if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
