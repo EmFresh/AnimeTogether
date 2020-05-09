@@ -134,10 +134,12 @@ public class VideoStuff : MonoBehaviour
                 tmp.soc = connect;
                 connections.Add(tmp);
 
-                
-                sendAllPacket(connect, new ClientIndex(index++));
-                sendAllPacket(connect, staticVideoURL);
-                sendAllPacket(connect, state);
+                if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
+                    PrintError(err = getLastNetworkError());
+                if (sendAllPacket(connect, staticVideoURL) == PResult.P_UnknownError)
+                    PrintError(err = getLastNetworkError());
+                if (sendAllPacket(connect, state) == PResult.P_UnknownError)
+                    PrintError(err = getLastNetworkError());
                 print("new connection!");
 
                 if (closeNetwork)
@@ -153,7 +155,7 @@ public class VideoStuff : MonoBehaviour
         public void Execute()
         {
 
-           // string err; //for viewing errors in debug
+            // string err; //for viewing errors in debug
             IntPtr tmp = IntPtr.Zero;
             while (true)
             {
@@ -210,8 +212,8 @@ public class VideoStuff : MonoBehaviour
                             break;
                     }
                 }
-               // else
-               //     PrintError(err = getLastNetworkError());
+                // else
+                //     PrintError(err = getLastNetworkError());
 
                 if (closeNetwork)
                     break;
@@ -326,6 +328,7 @@ public class VideoStuff : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        string err;
         if (!isClient)
         {
             if (staticVideoURL != videoURL)
@@ -334,14 +337,18 @@ public class VideoStuff : MonoBehaviour
                     staticVideoURL = videoURL;
                     player.Stop();
                     updateState();
-                    sendAllPacket(connect.soc, state);
-                    sendAllPacket(connect.soc, staticVideoURL);
+                    if(sendAllPacket(connect.soc, state)==PResult.P_UnknownError)
+                        PrintError(err = getLastNetworkError());
+                    if(sendAllPacket(connect.soc, staticVideoURL)==PResult.P_UnknownError)
+                        PrintError(err = getLastNetworkError());
                     player.url = staticVideoURL;
                     player.Prepare();
                 }
         }
         else if (staticVideoURL != videoURL)
         {
+            print("received new URL");
+
             videoURL = staticVideoURL;
             player.Stop();
             player.url = staticVideoURL;
