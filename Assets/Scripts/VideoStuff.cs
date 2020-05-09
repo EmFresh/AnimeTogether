@@ -122,7 +122,8 @@ public class VideoStuff : MonoBehaviour
             {
 
                 SocketData connect = new SocketData();
-                if (acceptSocket.Invoke(socket, connect) == PResult.P_UnknownError)
+                IPEndpointData connectIP = new IPEndpointData();
+                if (acceptSocket.Invoke(socket, connect,connectIP) == PResult.P_UnknownError)
                 {
                     PrintError(err = getLastNetworkError());
 
@@ -130,9 +131,13 @@ public class VideoStuff : MonoBehaviour
                         break;
                     continue;
                 }
+
                 var tmp = new Client();
                 tmp.soc = connect;
                 connections.Add(tmp);
+
+                print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
+                print("Port: "+connectIP.m_port);
 
                 if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
@@ -140,6 +145,7 @@ public class VideoStuff : MonoBehaviour
                     PrintError(err = getLastNetworkError());
                 if (sendAllPacket(connect, state) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
+                
                 print("new connection!");
 
                 if (closeNetwork)
@@ -164,7 +170,7 @@ public class VideoStuff : MonoBehaviour
 
                 if (recvAllPacket(socket, out unknown) == PResult.P_Success)
                 {
-                    print("Recieved Packet!");
+                    print("Received Packet!");
                     switch (unknown.type)
                     {
                         case MessageType.ClientIndex:
@@ -296,8 +302,8 @@ public class VideoStuff : MonoBehaviour
 
         jobReceive = new ReceiveNetworkJob()
         {
-            ip = ip,
-            socket = soc
+            socket = soc,
+            ip = ip
         };
 
         hndReceive = jobReceive.Schedule();

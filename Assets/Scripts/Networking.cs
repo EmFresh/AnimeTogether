@@ -230,7 +230,7 @@ public class Networking
     ///Attempts to accept the listened connection. 
     ///</summary>
     public static acceptSocketDelegate acceptSocket;
-    public delegate PResult acceptSocketDelegate(in SocketData soc, in SocketData outsoc);
+    public delegate PResult acceptSocketDelegate(in SocketData soc, in SocketData outsoc,in IPEndpointData outIP);
     ///<summary>
     ///Connects endpoint to socket
     ///</summary>
