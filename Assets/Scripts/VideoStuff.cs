@@ -17,6 +17,7 @@ public class VideoStuff : MonoBehaviour
     public GameObject video;
     public bool isClient;
     public string ipAddress;
+    public short port;
 
     public string videoURL;
     public static string staticVideoURL;
@@ -243,7 +244,7 @@ public class VideoStuff : MonoBehaviour
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(ipAddress, 5000, IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(ipAddress, port, IPVersion.IPv4);
         soc = createSocketData.Invoke(IPVersion.IPv4);
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
@@ -288,7 +289,7 @@ public class VideoStuff : MonoBehaviour
 
     void VideoError(VideoPlayer source, string message)
     {
-        print("Video Error Occurred: " + message);
+        Debug.LogError("Video Error Occurred: " + message);
 
         print("attempting retry");
 

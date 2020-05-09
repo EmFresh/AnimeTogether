@@ -2466,8 +2466,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2002413653}
-  - component: {fileID: 2002413652}
   - component: {fileID: 2002413654}
+  - component: {fileID: 2002413652}
   m_Layer: 0
   m_Name: Video Player
   m_TagString: Untagged
@@ -2539,4 +2539,5 @@ MonoBehaviour:
   video: {fileID: 524016899}
   isClient: 0
   ipAddress: 192.168.0.12
+  port: 5000
   videoURL: 
