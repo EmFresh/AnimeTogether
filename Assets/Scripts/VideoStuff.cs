@@ -133,6 +133,8 @@ public class VideoStuff : MonoBehaviour
                 var tmp = new Client();
                 tmp.soc = connect;
                 connections.Add(tmp);
+
+                
                 sendAllPacket(connect, new ClientIndex(index++));
                 sendAllPacket(connect, staticVideoURL);
                 sendAllPacket(connect, state);
@@ -151,7 +153,7 @@ public class VideoStuff : MonoBehaviour
         public void Execute()
         {
 
-            string err; //for viewing errors in debug
+           // string err; //for viewing errors in debug
             IntPtr tmp = IntPtr.Zero;
             while (true)
             {
@@ -208,8 +210,8 @@ public class VideoStuff : MonoBehaviour
                             break;
                     }
                 }
-                else
-                    PrintError(err = getLastNetworkError());
+               // else
+               //     PrintError(err = getLastNetworkError());
 
                 if (closeNetwork)
                     break;
