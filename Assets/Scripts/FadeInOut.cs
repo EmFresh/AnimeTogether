@@ -18,15 +18,9 @@ public class FadeInOut : MonoBehaviour
         controls = new Controls();
         controls.VideoPlayer.MouseInteract.performed += ctx => fadeInInvoke();
     }
+    void OnEnable() => controls.VideoPlayer.Enable();
 
-    void OnEnable()
-    {
-        controls.VideoPlayer.Enable();
-    }
-    void OnDisable()
-    {
-        controls.VideoPlayer.Disable();
-    }
+    void OnDisable() => controls.VideoPlayer.Disable();
 
     // Update is called once per frame
     void Update()

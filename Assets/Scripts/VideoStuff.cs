@@ -24,6 +24,7 @@ public class VideoStuff : MonoBehaviour
 
     public static short index = 0;
     static PlayerState state = new PlayerState();
+    static bool stateReceived;
     RenderTexture tmpTex;
     private Controls controls;
     static bool closeNetwork = false;
@@ -158,6 +159,7 @@ public class VideoStuff : MonoBehaviour
                 unknown = new Unknown();
                 if (recvAllPacket(socket, out unknown) == PResult.P_Success)
                 {
+                    print("Recieved Packet!");
                     switch (unknown.type)
                     {
                         case MessageType.ClientIndex:
@@ -180,6 +182,7 @@ public class VideoStuff : MonoBehaviour
                             if (state.seek)
                                 VideoStuff.state.pos = state.pos;
 
+                            stateReceived = true;
                             foreach (var client in connections)
                                 sendAllPacket(client.soc, state);
 
@@ -233,6 +236,7 @@ public class VideoStuff : MonoBehaviour
         controls.VideoPlayer.VolumeUp.performed += ctx => volUp();
         controls.VideoPlayer.VolumeDown.performed += ctx => volDown();
 
+        player.skipOnDrop = true;
         player.url = staticVideoURL;
         player.errorReceived += VideoError;
         player.prepareCompleted += VideoReady;
@@ -285,6 +289,13 @@ public class VideoStuff : MonoBehaviour
             }
         }
 
+        jobReceive = new ReceiveNetworkJob()
+        {
+            ip = ip,
+            socket = soc
+        };
+
+        hndReceive = jobReceive.Schedule();
     }
 
     void VideoError(VideoPlayer source, string message)
@@ -303,27 +314,11 @@ public class VideoStuff : MonoBehaviour
         //   playNPause();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        // web =  UnityWebRequest.Get("https://9anime.ru/filter?page=");
-        // web.SendWebRequest();
-        // print(web.downloadedBytes);
-
-        player.skipOnDrop = true;
-        //var audio = GetComponent<AudioSource>();
-
-        //video = new RenderTexture();
-    }
-
-    void OnEnable()
-    {
+    void OnEnable() =>
         controls.VideoPlayer.Enable();
-    }
-    void OnDisable()
-    {
+
+    void OnDisable() =>
         controls.VideoPlayer.Disable();
-    }
 
     // Update is called once per frame
     void Update()
@@ -348,6 +343,20 @@ public class VideoStuff : MonoBehaviour
             player.Stop();
             player.url = staticVideoURL;
             player.Prepare();
+        }
+
+        if (stateReceived)
+        {
+            stateReceived = false;
+
+            if (state.isPaused != player.isPaused)
+                if (player.isPaused || !player.isPlaying)
+                    player.Play();
+                else
+                    player.Pause();
+
+            if (state.seek)
+                player.time = state.pos;
         }
 
         if (!tmpTex)
@@ -381,20 +390,44 @@ public class VideoStuff : MonoBehaviour
         else
             player.Pause();
 
-        if (player.isPlaying)
-        {
-            updateState();
+        updateState();
+        if (isClient)
             sendAllPacket(soc, state);
-        }
+        else
+            foreach (var client in connections)
+                sendAllPacket(client.soc, state);
+
     }
-    public void skipIntro() =>
+    public void skipIntro()
+    {
         player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
 
-    public void seekL() =>
+        updateState();
+        state.seek = true;
+        if (isClient)
+            sendAllPacket(soc, state);
+
+    }
+    public void seekL()
+    {
         player.time = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
 
-    public void seekR() =>
+        updateState();
+        state.seek = true;
+        if (isClient)
+            sendAllPacket(soc, state);
+
+    }
+    public void seekR()
+    {
         player.time = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
+
+        updateState();
+        state.seek = true;
+        if (isClient)
+            sendAllPacket(soc, state);
+
+    }
     public void volUp()
     {
         for (ushort a = 0; a < player.audioTrackCount; ++a)

@@ -142,7 +142,7 @@ public class Networking
         return Marshal.PtrToStringAnsi(ptr);
     }
 
-    public static void PrintError(object ob) => Debug.LogError(ob);
+    public static void PrintError(object obj) => Debug.LogError(obj);
 
     //NETWORK//
 
