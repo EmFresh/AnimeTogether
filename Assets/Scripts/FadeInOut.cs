@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class FadeInOut : MonoBehaviour
 {
-    public float delay, fadeoutTime,fadeinTime;
+    public float delay, fadeoutTime, fadeinTime;
     float currentTime = 0, fadeTime = 1;
     bool isFadeOut = true;
 
@@ -39,21 +39,21 @@ public class FadeInOut : MonoBehaviour
 
     void fadeInInvoke()
     {
-        if (!isFadeOut)
+        if (!IsInvoking("fadeIn"))
             InvokeRepeating("fadeIn", 0, .01f);
     }
 
     public void fadeIn()
     {
-        isFadeOut = true;
-        currentTime = 0;
         CancelInvoke("fadeOut");
+        currentTime = 0;
 
         var cg = GetComponent<CanvasGroup>();
         cg.blocksRaycasts = true; //enables the buttons to be pressed
-        cg.alpha = ((fadeTime += Time.deltaTime) / fadeoutTime);
+        cg.alpha = Mathf.Clamp((fadeTime += Time.deltaTime) / fadeinTime, 0, 1);
         if (GetComponent<CanvasGroup>().alpha >= 1)
         {
+            isFadeOut = true;
             fadeTime = fadeoutTime;
             GetComponent<CanvasGroup>().alpha = 1;
             CancelInvoke("fadeIn");
@@ -67,7 +67,7 @@ public class FadeInOut : MonoBehaviour
         var cg = GetComponent<CanvasGroup>();
 
         cg.blocksRaycasts = false; //block the buttons from being pressed
-        cg.alpha = ((fadeTime -= Time.deltaTime) / fadeoutTime);
+        cg.alpha = Mathf.Clamp((fadeTime -= Time.deltaTime) / fadeoutTime, 0, 1);
         if (GetComponent<CanvasGroup>().alpha <= 0)
         {
             fadeTime = 0;

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-public class Networking : MonoBehaviour
+public class Networking 
 {
     #region Enums
     public enum IPVersion : int
@@ -119,26 +119,14 @@ public class Networking : MonoBehaviour
     public static void closeNetworkPlugin()
     {
         shutdownNetwork();
-        Thread.Sleep(1500);
+       // Thread.Sleep(1500);
 
         if (_pluginHandle != IntPtr.Zero)
             ManualPluginImporter.CloseLibrary(_pluginHandle);
     }
 
-    /// <summary>
-    /// Awake is called when the script instance is being loaded.
-    /// </summary>
-    void Awake()
-    {
-        initNetworkPlugin();
-    }
-    /// <summary>
-    /// Callback sent to all game objects before the application is quit.
-    /// </summary>
-    void OnApplicationQuit()
-    {
-        closeNetworkPlugin();
-    }
+  
+   
     #endregion
 
     //ERROR//

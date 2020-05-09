@@ -115,15 +115,15 @@ public class VideoStuff : MonoBehaviour
         public SocketData socket;
         public void Execute()
         {
-
+            string err; //for viewing errors in debug
             while (true)
             {
 
                 SocketData connect = new SocketData();
                 if (acceptSocket.Invoke(socket, connect) == PResult.P_UnknownError)
                 {
-                    PrintError(getLastNetworkError());
-                    
+                    PrintError(err = getLastNetworkError());
+
                     if (closeNetwork)
                         break;
                     continue;
@@ -141,6 +141,7 @@ public class VideoStuff : MonoBehaviour
             }
         }
     }
+
     public struct ReceiveNetworkJob : IJob
     {
         public IPEndpointData ip;
@@ -148,58 +149,62 @@ public class VideoStuff : MonoBehaviour
         public void Execute()
         {
 
+            string err; //for viewing errors in debug
             IntPtr tmp = IntPtr.Zero;
             while (true)
             {
                 Unknown unknown;
                 unknown = new Unknown();
-                recvAllPacket(socket, out unknown);
-
-                switch (unknown.type)
+                if (recvAllPacket(socket, out unknown) == PResult.P_Success)
                 {
-                    case MessageType.ClientIndex:
-                        tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                        Marshal.StructureToPtr(unknown, tmp, true);
-                        ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
-                        Marshal.FreeHGlobal(tmp);
+                    switch (unknown.type)
+                    {
+                        case MessageType.ClientIndex:
+                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                            Marshal.StructureToPtr(unknown, tmp, true);
+                            ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
+                            Marshal.FreeHGlobal(tmp);
 
-                        VideoStuff.index = index.index;
-                        break;
-                    case MessageType.PlayerState:
-                        tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                        Marshal.StructureToPtr(unknown, tmp, true);
-                        PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
-                        Marshal.FreeHGlobal(tmp);
+                            VideoStuff.index = index.index;
+                            break;
+                        case MessageType.PlayerState:
+                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                            Marshal.StructureToPtr(unknown, tmp, true);
+                            PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
+                            Marshal.FreeHGlobal(tmp);
 
-                        if (VideoStuff.state.isPaused != state.isPaused)
-                            VideoStuff.state.isPaused = state.isPaused;
+                            if (VideoStuff.state.isPaused != state.isPaused)
+                                VideoStuff.state.isPaused = state.isPaused;
 
-                        if (state.seek)
-                            VideoStuff.state.pos = state.pos;
+                            if (state.seek)
+                                VideoStuff.state.pos = state.pos;
 
-                        foreach (var client in connections)
-                            sendAllPacket(client.soc, state);
+                            foreach (var client in connections)
+                                sendAllPacket(client.soc, state);
 
-                        break;
-                    case MessageType.ClientPrepared:
-                        tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                        Marshal.StructureToPtr(unknown, tmp, true);
-                        ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
-                        Marshal.FreeHGlobal(tmp);
+                            break;
+                        case MessageType.ClientPrepared:
+                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                            Marshal.StructureToPtr(unknown, tmp, true);
+                            ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
+                            Marshal.FreeHGlobal(tmp);
 
-                        connections[prep.index].prepared = prep;
-                        break;
-                    default:
-                        //TODO: receive video url string from host
-                        tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                        Marshal.StructureToPtr(unknown, tmp, true);
-                        string url = Marshal.PtrToStringAnsi(tmp);
-                        Marshal.FreeHGlobal(tmp);
+                            connections[prep.index].prepared = prep;
+                            break;
+                        default:
+                            //TODO: receive video url string from host
+                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                            Marshal.StructureToPtr(unknown, tmp, true);
+                            string url = Marshal.PtrToStringAnsi(tmp);
+                            Marshal.FreeHGlobal(tmp);
 
-                        staticVideoURL = url;
+                            staticVideoURL = url;
 
-                        break;
+                            break;
+                    }
                 }
+                else
+                    PrintError(err = getLastNetworkError());
 
                 if (closeNetwork)
                     break;
@@ -287,7 +292,7 @@ public class VideoStuff : MonoBehaviour
 
         print("attempting retry");
 
-        var tmp = source.url;
+        //  var tmp = source.url;
         source.Prepare();
     }
 
@@ -419,8 +424,7 @@ public class VideoStuff : MonoBehaviour
             if (setBlocking.Invoke(soc, false) == PResult.P_UnknownError)
                 PrintError(str = getLastNetworkError());
 
-            if (closeSocket.Invoke(soc) == PResult.P_UnknownError)
-                PrintError(str = getLastNetworkError());
+            closeSocket.Invoke(soc);
 
             if (!shutdownNetwork())
                 PrintError(str = getLastNetworkError());
@@ -428,7 +432,7 @@ public class VideoStuff : MonoBehaviour
             hndReceive.Complete();
             hndAccept.Complete();
         }
-        closeNetworkPlugin();
 
+        closeNetworkPlugin();
     }
 }
