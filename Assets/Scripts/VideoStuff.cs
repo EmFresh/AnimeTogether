@@ -33,9 +33,9 @@ public class VideoStuff : MonoBehaviour
     float seekSpeed = 5, introSkip = 85; //1:25
 
     #region Jobs 
-    ListenOnNetworkJob jobListen;
+    AcceptNetworkJob jobAccept;
     ReceiveNetworkJob jobReceive;
-    JobHandle hndListen, hndReceive;
+    JobHandle hndAccept, hndReceive;
 
     public enum MessageType : int
     {
@@ -110,33 +110,31 @@ public class VideoStuff : MonoBehaviour
         public bool playerReady;
     }
 
-    public struct ListenOnNetworkJob : IJob
+    public struct AcceptNetworkJob : IJob
     {
-        public IPEndpointData ip;
         public SocketData socket;
         public void Execute()
         {
 
             while (true)
             {
-                if (listenEndpointToSocket.Invoke(ip, socket) == PResult.P_Success)
+
+                SocketData connect = new SocketData();
+                if (acceptSocket.Invoke(socket, connect) == PResult.P_UnknownError)
                 {
-                    SocketData connect = new SocketData();
-                    if (acceptSocket.Invoke(socket, connect) == PResult.P_UnknownError)
-                    {
-                        PrintError(getLastNetworkError());
-                        continue;
-                    }
-                    var tmp = new Client();
-                    tmp.soc = connect;
-                    connections.Add(tmp);
-                    sendAllPacket(connect, new ClientIndex(index++));
-                    sendAllPacket(connect, staticVideoURL);
-                    sendAllPacket(connect, state);
-                    print("new connection!");
-                }
-                else
                     PrintError(getLastNetworkError());
+                    
+                    if (closeNetwork)
+                        break;
+                    continue;
+                }
+                var tmp = new Client();
+                tmp.soc = connect;
+                connections.Add(tmp);
+                sendAllPacket(connect, new ClientIndex(index++));
+                sendAllPacket(connect, staticVideoURL);
+                sendAllPacket(connect, state);
+                print("new connection!");
 
                 if (closeNetwork)
                     break;
@@ -239,7 +237,8 @@ public class VideoStuff : MonoBehaviour
 
         initNetworkPlugin();
         initNetwork();
-        ip = createIPEndpointData.Invoke(ipAddress, 22, IPVersion.IPv4);
+
+        ip = createIPEndpointData.Invoke(ipAddress, 5000, IPVersion.IPv4);
         soc = createSocketData.Invoke(IPVersion.IPv4);
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
@@ -249,16 +248,23 @@ public class VideoStuff : MonoBehaviour
         }
         if (!isClient) //server
         {
-
-            jobListen = new ListenOnNetworkJob()
+            if (listenEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
-                socket = soc,
-                ip = ip
-            };
+                jobAccept = new AcceptNetworkJob()
+                {
+                socket = soc
+                };
 
-            hndListen = jobListen.Schedule();
+                hndAccept = jobAccept.Schedule();
 
-            //TODO: create a network listening job 
+                //TODO: create a network listening job 
+            }
+            else
+            {
+                PrintError(getLastNetworkError());
+                return;
+            }
+
         }
         else
         {
@@ -273,12 +279,6 @@ public class VideoStuff : MonoBehaviour
             }
         }
 
-        jobReceive = new ReceiveNetworkJob()
-        {
-            ip = ip,
-            socket = soc
-        };
-        hndReceive = jobReceive.Schedule();
     }
 
     void VideoError(VideoPlayer source, string message)
@@ -414,14 +414,21 @@ public class VideoStuff : MonoBehaviour
         closeNetwork = true;
         if (isNetworkInit)
         {
-            if (!shutdownNetwork())
-                PrintError(getLastNetworkError());
-            //closeSocket(soc);
+            string str;
 
-            closeSocket.Invoke(soc);
+            if (setBlocking.Invoke(soc, false) == PResult.P_UnknownError)
+                PrintError(str = getLastNetworkError());
+
+            if (closeSocket.Invoke(soc) == PResult.P_UnknownError)
+                PrintError(str = getLastNetworkError());
+
+            if (!shutdownNetwork())
+                PrintError(str = getLastNetworkError());
+
             hndReceive.Complete();
-            hndListen.Complete();
+            hndAccept.Complete();
         }
         closeNetworkPlugin();
+
     }
 }

@@ -2243,7 +2243,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 0.5
 --- !u!222 &1567817834
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2489,5 +2489,5 @@ MonoBehaviour:
   player: {fileID: 2002413652}
   video: {fileID: 524016899}
   isClient: 0
-  ipAddress: localhost
-  videoURL: https://s1.mp4upload.com:282/d/qsx6v4rlz3b4quuouswr4oawci3iqui2sqdrnw6v3pm54cgzihheypry/video.mp4
+  ipAddress: 192.168.0.12
+  videoURL: 
