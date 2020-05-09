@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Threading;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-public class Networking 
+public class Networking
 {
     #region Enums
     public enum IPVersion : int
@@ -85,7 +85,13 @@ public class Networking
     public static ref readonly bool isNetworkInit => ref _isNetworkinit;
 
     private static bool _isNetworkinit = false;
+
+#if UNITY_EDITOR
     const string DLL = "/Plugins/Networking.DLL";
+#else
+    const string DLL = "/Plugins/x86_64/Networking.DLL";
+#endif
+
     static IntPtr _pluginHandle = IntPtr.Zero;
     #endregion
 
@@ -119,14 +125,12 @@ public class Networking
     public static void closeNetworkPlugin()
     {
         shutdownNetwork();
-       // Thread.Sleep(1500);
+        // Thread.Sleep(1500);
 
         if (_pluginHandle != IntPtr.Zero)
             ManualPluginImporter.CloseLibrary(_pluginHandle);
     }
 
-  
-   
     #endregion
 
     //ERROR//

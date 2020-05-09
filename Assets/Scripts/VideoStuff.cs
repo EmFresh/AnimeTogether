@@ -157,6 +157,7 @@ public class VideoStuff : MonoBehaviour
             {
                 Unknown unknown;
                 unknown = new Unknown();
+
                 if (recvAllPacket(socket, out unknown) == PResult.P_Success)
                 {
                     print("Recieved Packet!");
