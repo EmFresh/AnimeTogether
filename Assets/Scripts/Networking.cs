@@ -230,7 +230,7 @@ public class Networking
     ///Attempts to accept the listened connection. 
     ///</summary>
     public static acceptSocketDelegate acceptSocket;
-    public delegate PResult acceptSocketDelegate(in SocketData soc, in SocketData outsoc,in IPEndpointData outIP);
+    public delegate PResult acceptSocketDelegate(in SocketData soc, in SocketData outsoc, in IPEndpointData outIP);
     ///<summary>
     ///Connects endpoint to socket
     ///</summary>
@@ -354,9 +354,12 @@ public class Networking
     {
         numberOfBytes = numberOfBytes >= 0 ? numberOfBytes : Marshal.SizeOf<T>();
 
+        PrintError("number of bytes: " + numberOfBytes.ToString());
+
         IntPtr tmp = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
         Marshal.StructureToPtr(data, tmp, true);
         PResult res = sendAllPacketData(in soc, tmp, numberOfBytes);
+        //PrintError("number of bytes sent: " + numberOfBytes.ToString());
 
         Marshal.FreeHGlobal(tmp);
 
