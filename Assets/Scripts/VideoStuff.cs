@@ -232,8 +232,17 @@ public class VideoStuff : MonoBehaviour
                 }
                 else
                 {
-                    foreach (var client in connections)
+                    var tmpconnections = connections;
+                    foreach (var client in tmpconnections)
                     {
+                        if (pollEvents.Invoke(client.soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                        {
+                            PrintError(err = getLastNetworkError());
+                            continue;
+                        }
+
+                        if (client.soc.pollCount == 0)continue;
+
                         if (recvAllPacket(client.soc, out unknown) == PResult.P_Success)
                         {
                             print("Received Packet!");

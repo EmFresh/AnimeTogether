@@ -28,7 +28,7 @@ public class Networking
         P_Success,
         P_UnknownError
     }
-    enum EventsPoll
+    public enum EventsPoll
     {
         EP_RDBAND = 0x0200, //Priority band (out-of-band) data may be read without blocking.
         EP_RDNORM = 0x0100, //Normal data may be read without blocking.
@@ -37,7 +37,7 @@ public class Networking
         EP_OUT = EP_WRNORM, //same as the EPWRNORM
     }
 
-    enum REventsPoll
+    public enum REventsPoll
     {
         REP_ERR = 0x0001, //An error has occurred.
         REP_NVAL = 0x0004, //An invalid socket was used.
@@ -56,8 +56,8 @@ public class Networking
     {
         public IPVersion m_IPVersion;
         public UInt64 m_hnd;
-        uint pollCount;
-        short revents;
+        public uint pollCount;
+        public short revents;
     };
 
     [StructLayout(LayoutKind.Sequential)]
@@ -110,6 +110,7 @@ public class Networking
         initSocket = ManualPluginImporter.GetDelegate<initSocketDelegate>(_pluginHandle, "initSocket");
         closeSocket = ManualPluginImporter.GetDelegate<closeSocketDelegate>(_pluginHandle, "closeSocket");
         setBlocking = ManualPluginImporter.GetDelegate<setBlockingDelegate>(_pluginHandle, "setBlocking");
+        pollEvents = ManualPluginImporter.GetDelegate<pollEventsDelegate>(_pluginHandle, "pollEvents");
         bindEndpointToSocket = ManualPluginImporter.GetDelegate<bindEndpointToSocketDelegate>(_pluginHandle, "bindEndpointToSocket");
         listenEndpointToSocket = ManualPluginImporter.GetDelegate<listenEndpointToSocketDelegate>(_pluginHandle, "listenEndpointToSocket");
         acceptSocket = ManualPluginImporter.GetDelegate<acceptSocketDelegate>(_pluginHandle, "acceptSocket");
@@ -209,6 +210,9 @@ public class Networking
     ///</summary>
     public static setBlockingDelegate setBlocking;
     public delegate PResult setBlockingDelegate(in SocketData soc, bool blocking = true);
+
+    public static pollEventsDelegate pollEvents;
+    public delegate PResult pollEventsDelegate(in SocketData soc, int delayInMili, short eventflags = 0);
 
     ///<summary>
     ///closes socket so it can not be used unless createSocket() is called once again.
