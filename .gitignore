@@ -65,7 +65,6 @@ crashlytics-build.properties
 Assets/HTMLRead/
 *.zip
 *.log
-
 Video Player Test/
-
 ProjectSettings/
+!Networking.sln
