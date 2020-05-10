@@ -269,8 +269,8 @@ public class VideoStuff : MonoBehaviour
                                         VideoStuff.state.pos = state.pos;
 
                                     stateReceived = true;
-                                    foreach (var client in connections)
-                                        sendAllPacket(client.soc, state);
+                                    foreach (var client2 in connections)
+                                        sendAllPacket(client2.soc, state);
 
                                     break;
                                 case MessageType.ClientPrepared:
