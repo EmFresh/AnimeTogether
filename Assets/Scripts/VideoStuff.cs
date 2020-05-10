@@ -15,7 +15,10 @@ public class VideoStuff : MonoBehaviour
     public VideoPlayer player;
     //GameObject video;
     public GameObject video;
-    public static bool isClient;
+
+    public bool isClient;
+    private static  bool _isClient;
+    
     public string ipAddress;
     public short port;
 
@@ -175,7 +178,7 @@ public class VideoStuff : MonoBehaviour
             {
                 Unknown unknown;
                 unknown = new Unknown();
-                if (isClient)
+                if (_isClient)
                 {
                     if (recvAllPacket(socket, out unknown) == PResult.P_Success)
                     {
@@ -313,7 +316,7 @@ public class VideoStuff : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        if (!isClient)
+        if (!_isClient)
             staticVideoURL = videoURL;
         //Setup controls
         controls = new Controls();
@@ -328,7 +331,7 @@ public class VideoStuff : MonoBehaviour
         player.errorReceived += VideoError;
         player.prepareCompleted += VideoReady;
 
-        if (!isClient)
+        if (!_isClient)
             if (staticVideoURL != "")
                 player.Prepare();
 
@@ -343,7 +346,7 @@ public class VideoStuff : MonoBehaviour
             print(getLastNetworkError());
             return;
         }
-        if (!isClient) //server
+        if (!_isClient) //server
         {
             if (listenEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
@@ -410,8 +413,10 @@ public class VideoStuff : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        _isClient = isClient;
+        
         string err;
-        if (!isClient)
+        if (!_isClient)
         {
             if (staticVideoURL != videoURL)
                 foreach (var connect in connections)
@@ -483,7 +488,7 @@ public class VideoStuff : MonoBehaviour
             player.Pause();
 
         updateState();
-        if (isClient)
+        if (_isClient)
             sendAllPacket(soc, state);
         else
             foreach (var client in connections)
@@ -496,7 +501,7 @@ public class VideoStuff : MonoBehaviour
 
         updateState();
         state.seek = true;
-        if (isClient)
+        if (_isClient)
             sendAllPacket(soc, state);
 
     }
@@ -506,7 +511,7 @@ public class VideoStuff : MonoBehaviour
 
         updateState();
         state.seek = true;
-        if (isClient)
+        if (_isClient)
             sendAllPacket(soc, state);
 
     }
@@ -516,7 +521,7 @@ public class VideoStuff : MonoBehaviour
 
         updateState();
         state.seek = true;
-        if (isClient)
+        if (_isClient)
             sendAllPacket(soc, state);
 
     }

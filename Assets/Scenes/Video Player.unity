@@ -2538,7 +2538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 2002413652}
   video: {fileID: 524016899}
-  isClient: 1
+  isClient: 0
   ipAddress: 50.101.236.245
   port: 5000
   videoURL: 
