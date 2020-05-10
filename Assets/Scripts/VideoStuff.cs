@@ -142,18 +142,24 @@ public class VideoStuff : MonoBehaviour
                 print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
                 print("Port: " + connectIP.m_port);
 
+                int size = Marshal.SizeOf<ClientIndex>();
+                sendAllPacket(connect, size);
                 if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
 
                 print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
                 print("Port: " + connectIP.m_port);
 
+                size = staticVideoURL.Length + 1;
+                sendAllPacket(connect, size);
                 if (sendAllPacket(connect, staticVideoURL) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
 
                 print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
                 print("Port: " + connectIP.m_port);
 
+                size = Marshal.SizeOf<PlayerState>();
+                sendAllPacket(connect, size);
                 if (sendAllPacket(connect, state) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
 
@@ -172,13 +178,15 @@ public class VideoStuff : MonoBehaviour
 
             string err; //for viewing errors in debug
             IntPtr tmp = IntPtr.Zero;
+            int size;
             while (true)
             {
                 Unknown unknown;
                 unknown = new Unknown();
                 if (_isClient)
                 {
-                    if (recvAllPacket(soc, out unknown) == PResult.P_Success)
+                    recvAllPacket(soc, out size);
+                    if (recvAllPacket(soc, out unknown, size) == PResult.P_Success)
                     {
                         print("Received Packet!");
                         switch (unknown.type)
@@ -236,15 +244,16 @@ public class VideoStuff : MonoBehaviour
                     var tmpconnections = connections;
                     foreach (var client in tmpconnections)
                     {
-                        if (pollEvents.Invoke(client.soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
-                        {
-                            PrintError(err = getLastNetworkError());
-                            continue;
-                        }
+                        //if (pollEvents.Invoke(client.soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                        //{
+                        //    PrintError(err = getLastNetworkError());
+                        //    continue;
+                        //}
+                        //
+                        //if (client.soc.pollCount == 0)continue;
 
-                        if (client.soc.pollCount == 0)continue;
-
-                        if (recvAllPacket(client.soc, out unknown) == PResult.P_Success)
+                        recvAllPacket(client.soc, out size);
+                        if (recvAllPacket(client.soc, out unknown, size) == PResult.P_Success)
                         {
                             print("Received Packet!");
                             switch (unknown.type)
@@ -270,8 +279,10 @@ public class VideoStuff : MonoBehaviour
                                         VideoStuff.state.pos = state.pos;
 
                                     stateReceived = true;
+                                     size = Marshal.SizeOf<PlayerState>();
+                                    sendAllPacket(client.soc, size);
                                     foreach (var client2 in connections)
-                                        sendAllPacket(client2.soc, state);
+                                        sendAllPacket(client2.soc, state,size);
 
                                     break;
                                 case MessageType.ClientPrepared:
@@ -419,8 +430,14 @@ public class VideoStuff : MonoBehaviour
                     staticVideoURL = videoURL;
                     player.Stop();
                     updateState();
+
+                    int size = Marshal.SizeOf<PlayerState>();
+                    sendAllPacket(connect.soc, size);
                     if (sendAllPacket(connect.soc, state) == PResult.P_UnknownError)
                         PrintError(err = getLastNetworkError());
+
+                    size = staticVideoURL.Length + 1;
+                    sendAllPacket(connect.soc, size);
                     if (sendAllPacket(connect.soc, staticVideoURL) == PResult.P_UnknownError)
                         PrintError(err = getLastNetworkError());
                     player.url = staticVideoURL;
@@ -483,12 +500,19 @@ public class VideoStuff : MonoBehaviour
             player.Pause();
 
         updateState();
+        int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
+        {
+            sendAllPacket(soc, size);
             sendAllPacket(soc, state);
+        }
         else
-            foreach (var client in connections)
-                sendAllPacket(client.soc, state);
 
+            foreach (var client in connections)
+            {
+                sendAllPacket(client.soc, size);
+                sendAllPacket(client.soc, state);
+            }
     }
     public void skipIntro()
     {
@@ -497,8 +521,9 @@ public class VideoStuff : MonoBehaviour
         updateState();
         state.seek = true;
         if (_isClient)
+        {
             sendAllPacket(soc, state);
-
+        }
     }
     public void seekL()
     {
@@ -506,9 +531,19 @@ public class VideoStuff : MonoBehaviour
 
         updateState();
         state.seek = true;
+        int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
+        {
+            sendAllPacket(soc, size);
             sendAllPacket(soc, state);
+        }
+        else
 
+            foreach (var client in connections)
+            {
+                sendAllPacket(client.soc, size);
+                sendAllPacket(client.soc, state);
+            }
     }
     public void seekR()
     {
@@ -516,9 +551,19 @@ public class VideoStuff : MonoBehaviour
 
         updateState();
         state.seek = true;
+        int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
+        {
+            sendAllPacket(soc, size);
             sendAllPacket(soc, state);
+        }
+        else
 
+            foreach (var client in connections)
+            {
+                sendAllPacket(client.soc, size);
+                sendAllPacket(client.soc, state);
+            }
     }
     public void volUp()
     {
