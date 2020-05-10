@@ -116,9 +116,9 @@ void  sendMesages()
 
 		std::getline(std::cin, msg);
 		int size = ((int)msg.size()) + 1, dump = 0;
-		if(Socket::sendAllPacket(sock, (char*)msg.data(), size) == P_UnknownError)
-			puts(LastNetworkError::GetLastError().data());
 		if(Socket::sendAllPacket(sock, &size, 4) == P_UnknownError)
+			puts(LastNetworkError::GetLastError().data());
+		if(Socket::sendAllPacket(sock, (char*)msg.data(), size) == P_UnknownError)
 			puts(LastNetworkError::GetLastError().data());
 
 

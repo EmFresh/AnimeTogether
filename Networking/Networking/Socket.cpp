@@ -329,8 +329,6 @@ PResult Socket::recvPacket(const SocketData& soc, void* dest, int numberOfBytes,
 
 	if(bytesRecv == SOCKET_ERROR)
 	{
-
-
 		LastNetworkError::SetLastError("recv packet error: ", WSAGetLastError());
 
 		return PResult::P_UnknownError;

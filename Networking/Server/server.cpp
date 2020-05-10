@@ -74,7 +74,8 @@ int main()
 
 #ifdef TCPIMP
 
-void  sendMesages(std::vector<SocketData>* sockets)
+std::vector<SocketData> newSock;
+void  sendMesages()
 {
 	std::string msg;
 
@@ -83,7 +84,8 @@ void  sendMesages(std::vector<SocketData>* sockets)
 		std::getline(std::cin, msg);
 		int size = ((int)msg.size()) + 1;
 
-		for(auto& sock : *sockets)
+		auto tmpsock = newSock;
+		for(auto& sock : tmpsock)
 		{
 			//if(Socket::pollEvents(sock, 1, EventsPoll::EP_OUT) != PResult::P_Success)
 			//{
@@ -96,30 +98,35 @@ void  sendMesages(std::vector<SocketData>* sockets)
 	}
 }
 
-void recvMesages(std::vector<SocketData>* sockets)
+void recvMesages()
 {
 
 	std::string msg;
 	int size;
-	for(auto& sock : *sockets)
+	while(true)
 	{
-		size = 0;
-		//if(Socket::pollEvents(sock, 1, EventsPoll::EP_IN) != PResult::P_Success)
-		//{
-		//	puts(LastNetworkError::GetLastError().c_str());
-		//	continue;
-		//}
-		if(Socket::recvAllPacket(sock, &size, 4) == P_UnknownError)
-			puts(LastNetworkError::GetLastError().data());
-		msg.resize(size);
-		if(Socket::recvAllPacket(sock, (char*)msg.data(), size) == P_UnknownError)
-			puts(LastNetworkError::GetLastError().data());
-		printf("Message Received: %s\n", msg.data());
-	}
+		auto tmpsock = newSock;
+		for(auto& sock : tmpsock)
+		{
 
+			size = 0;
+
+			//if(sock.hnd == INVALID_SOCKET)continue;
+
+			if(Socket::recvAllPacket(sock, &size, 4) == P_UnknownError)
+				continue;
+
+			msg.resize(size);
+
+			if(Socket::recvAllPacket(sock, (char*)msg.data(), size) == P_UnknownError)
+				puts(LastNetworkError::GetLastError().data());
+			
+			printf("Message Received: %s\n", msg.data());
+		}
+
+	}
 }
 
-std::vector<SocketData> newSock;
 void frame()
 {
 	//	puts("Done");
@@ -137,8 +144,8 @@ int main()
 	cin >> ip;
 	printf("enter port#: ");
 	cin >> port;
-	std::thread snd(sendMesages, &newSock);
-	std::thread msg(recvMesages, &newSock);
+	std::thread snd(sendMesages);
+	std::thread msg(recvMesages);
 	if(Network::init())
 	{
 		IPEndpointData endp = IPEndpoint::createIPEndpoint(ip.data(), port, IPVersion::IPv4);
@@ -153,10 +160,10 @@ int main()
 		if(Socket::init(sock, TCP, true) == PResult::P_Success)
 		{
 			puts("Done");
-
 			printf("Listen Endpoint: ");
 			if(Socket::listenEndpoint(endp, sock) == PResult::P_Success)
 			{
+				newSock.push_back(sock);
 				puts("Done");
 				//if(Socket::pollEvents(sock, 1, EventsPoll::EP_RDNORM) == PResult::P_UnknownError)
 				//{

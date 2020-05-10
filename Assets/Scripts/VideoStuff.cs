@@ -15,7 +15,7 @@ public class VideoStuff : MonoBehaviour
     public VideoPlayer player;
     //GameObject video;
     public GameObject video;
-    public bool isClient;
+    public static bool isClient;
     public string ipAddress;
     public short port;
 
@@ -123,7 +123,7 @@ public class VideoStuff : MonoBehaviour
 
                 SocketData connect = new SocketData();
                 IPEndpointData connectIP = new IPEndpointData();
-                if (acceptSocket.Invoke(socket, connect,connectIP) == PResult.P_UnknownError)
+                if (acceptSocket.Invoke(socket, connect, connectIP) == PResult.P_UnknownError)
                 {
                     PrintError(err = getLastNetworkError());
 
@@ -141,11 +141,19 @@ public class VideoStuff : MonoBehaviour
 
                 if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
+
+                print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
+                print("Port: " + connectIP.m_port);
+
                 if (sendAllPacket(connect, staticVideoURL) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
+
+                print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
+                print("Port: " + connectIP.m_port);
+
                 if (sendAllPacket(connect, state) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
-                
+
                 print("new connection!");
 
                 if (closeNetwork)
@@ -161,66 +169,125 @@ public class VideoStuff : MonoBehaviour
         public void Execute()
         {
 
-            // string err; //for viewing errors in debug
+            string err; //for viewing errors in debug
             IntPtr tmp = IntPtr.Zero;
             while (true)
             {
                 Unknown unknown;
                 unknown = new Unknown();
-
-                if (recvAllPacket(socket, out unknown) == PResult.P_Success)
+                if (isClient)
                 {
-                    print("Received Packet!");
-                    switch (unknown.type)
+                    if (recvAllPacket(socket, out unknown) == PResult.P_Success)
                     {
-                        case MessageType.ClientIndex:
-                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                            Marshal.StructureToPtr(unknown, tmp, true);
-                            ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
-                            Marshal.FreeHGlobal(tmp);
+                        print("Received Packet!");
+                        switch (unknown.type)
+                        {
+                            case MessageType.ClientIndex:
+                                tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                Marshal.StructureToPtr(unknown, tmp, true);
+                                ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
+                                Marshal.FreeHGlobal(tmp);
 
-                            VideoStuff.index = index.index;
-                            break;
-                        case MessageType.PlayerState:
-                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                            Marshal.StructureToPtr(unknown, tmp, true);
-                            PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
-                            Marshal.FreeHGlobal(tmp);
+                                VideoStuff.index = index.index;
+                                break;
+                            case MessageType.PlayerState:
+                                tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                Marshal.StructureToPtr(unknown, tmp, true);
+                                PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
+                                Marshal.FreeHGlobal(tmp);
 
-                            if (VideoStuff.state.isPaused != state.isPaused)
-                                VideoStuff.state.isPaused = state.isPaused;
+                                if (VideoStuff.state.isPaused != state.isPaused)
+                                    VideoStuff.state.isPaused = state.isPaused;
 
-                            if (state.seek)
-                                VideoStuff.state.pos = state.pos;
+                                if (state.seek)
+                                    VideoStuff.state.pos = state.pos;
 
-                            stateReceived = true;
-                            foreach (var client in connections)
-                                sendAllPacket(client.soc, state);
+                                stateReceived = true;
+                                foreach (var client in connections)
+                                    sendAllPacket(client.soc, state);
 
-                            break;
-                        case MessageType.ClientPrepared:
-                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                            Marshal.StructureToPtr(unknown, tmp, true);
-                            ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
-                            Marshal.FreeHGlobal(tmp);
+                                break;
+                            case MessageType.ClientPrepared:
+                                tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                Marshal.StructureToPtr(unknown, tmp, true);
+                                ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
+                                Marshal.FreeHGlobal(tmp);
 
-                            connections[prep.index].prepared = prep;
-                            break;
-                        default:
-                            //TODO: receive video url string from host
-                            tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                            Marshal.StructureToPtr(unknown, tmp, true);
-                            string url = Marshal.PtrToStringAnsi(tmp);
-                            Marshal.FreeHGlobal(tmp);
+                                connections[prep.index].prepared = prep;
+                                break;
+                            default:
+                                //TODO: receive video url string from host
+                                tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                Marshal.StructureToPtr(unknown, tmp, true);
+                                string url = Marshal.PtrToStringAnsi(tmp);
+                                Marshal.FreeHGlobal(tmp);
 
-                            staticVideoURL = url;
+                                staticVideoURL = url;
 
-                            break;
+                                break;
+                        }
+                    }
+                    else
+                        PrintError(err = getLastNetworkError());
+                }
+                else
+                {
+                    foreach (var client in connections)
+                    {
+                        if (recvAllPacket(client.soc, out unknown) == PResult.P_Success)
+                        {
+                            print("Received Packet!");
+                            switch (unknown.type)
+                            {
+                                case MessageType.ClientIndex:
+                                    tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                    Marshal.StructureToPtr(unknown, tmp, true);
+                                    ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
+                                    Marshal.FreeHGlobal(tmp);
+
+                                    VideoStuff.index = index.index;
+                                    break;
+                                case MessageType.PlayerState:
+                                    tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                    Marshal.StructureToPtr(unknown, tmp, true);
+                                    PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
+                                    Marshal.FreeHGlobal(tmp);
+
+                                    if (VideoStuff.state.isPaused != state.isPaused)
+                                        VideoStuff.state.isPaused = state.isPaused;
+
+                                    if (state.seek)
+                                        VideoStuff.state.pos = state.pos;
+
+                                    stateReceived = true;
+                                    foreach (var client in connections)
+                                        sendAllPacket(client.soc, state);
+
+                                    break;
+                                case MessageType.ClientPrepared:
+                                    tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                    Marshal.StructureToPtr(unknown, tmp, true);
+                                    ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
+                                    Marshal.FreeHGlobal(tmp);
+
+                                    connections[prep.index].prepared = prep;
+                                    break;
+                                default:
+                                    //TODO: receive video url string from host
+                                    tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
+                                    Marshal.StructureToPtr(unknown, tmp, true);
+                                    string url = Marshal.PtrToStringAnsi(tmp);
+                                    Marshal.FreeHGlobal(tmp);
+
+                                    staticVideoURL = url;
+
+                                    break;
+                            }
+                        }
+                        else
+                            PrintError(err = getLastNetworkError());
                     }
                 }
-                // else
-                //     PrintError(err = getLastNetworkError());
-
                 if (closeNetwork)
                     break;
             }
@@ -343,9 +410,9 @@ public class VideoStuff : MonoBehaviour
                     staticVideoURL = videoURL;
                     player.Stop();
                     updateState();
-                    if(sendAllPacket(connect.soc, state)==PResult.P_UnknownError)
+                    if (sendAllPacket(connect.soc, state) == PResult.P_UnknownError)
                         PrintError(err = getLastNetworkError());
-                    if(sendAllPacket(connect.soc, staticVideoURL)==PResult.P_UnknownError)
+                    if (sendAllPacket(connect.soc, staticVideoURL) == PResult.P_UnknownError)
                         PrintError(err = getLastNetworkError());
                     player.url = staticVideoURL;
                     player.Prepare();
