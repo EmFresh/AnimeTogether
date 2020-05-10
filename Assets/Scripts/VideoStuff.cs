@@ -17,8 +17,8 @@ public class VideoStuff : MonoBehaviour
     public GameObject video;
 
     public bool isClient;
-    private static  bool _isClient;
-    
+    private static bool _isClient;
+
     public string ipAddress;
     public short port;
 
@@ -167,8 +167,6 @@ public class VideoStuff : MonoBehaviour
 
     public struct ReceiveNetworkJob : IJob
     {
-        public IPEndpointData ip;
-        public SocketData socket;
         public void Execute()
         {
 
@@ -180,7 +178,7 @@ public class VideoStuff : MonoBehaviour
                 unknown = new Unknown();
                 if (_isClient)
                 {
-                    if (recvAllPacket(socket, out unknown) == PResult.P_Success)
+                    if (recvAllPacket(soc, out unknown) == PResult.P_Success)
                     {
                         print("Received Packet!");
                         switch (unknown.type)
@@ -308,14 +306,16 @@ public class VideoStuff : MonoBehaviour
 
     #endregion
 
-    IPEndpointData ip;
-    SocketData soc;
+    public static IPEndpointData ip;
+    public static SocketData soc;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
     {
+        _isClient = isClient;
+
         if (!_isClient)
             staticVideoURL = videoURL;
         //Setup controls
@@ -379,12 +379,7 @@ public class VideoStuff : MonoBehaviour
             }
         }
 
-        jobReceive = new ReceiveNetworkJob()
-        {
-            socket = soc,
-            ip = ip
-        };
-
+        jobReceive = new ReceiveNetworkJob();
         hndReceive = jobReceive.Schedule();
     }
 
@@ -414,7 +409,7 @@ public class VideoStuff : MonoBehaviour
     void Update()
     {
         _isClient = isClient;
-        
+
         string err;
         if (!_isClient)
         {
