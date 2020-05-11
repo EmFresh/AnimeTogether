@@ -27,7 +27,7 @@ public class VideoStuff : MonoBehaviour
 
     public static short index = 0;
     static PlayerState state = new PlayerState();
-    static bool stateReceived;
+    static bool stateReceived = false;
     RenderTexture tmpTex;
     private Controls controls;
     static bool closeNetwork = false;
@@ -100,6 +100,7 @@ public class VideoStuff : MonoBehaviour
         public bool isPlaying;
         public bool isPaused;
         public bool seek;
+        public DateTime timeStamp;
         public double pos;
 
     }
@@ -450,19 +451,24 @@ public class VideoStuff : MonoBehaviour
             player.Prepare();
         }
 
-        if (stateReceived)
-        {
-            stateReceived = false;
+        if (player.isPrepared)
+            if (stateReceived)
+            {
+                double delayTime = DateTime.Now.Subtract(state.timeStamp).TotalSeconds;
 
-            if (state.isPaused != player.isPaused)
-                if (player.isPaused || !player.isPlaying)
-                    player.Play();
-                else
-                    player.Pause();
+                stateReceived = false;
+                player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
+                bool isDelayedPlay;
+                if (isDelayedPlay = (state.isPaused != player.isPaused))
+                    if (player.isPaused || !player.isPlaying)
+                        player.Play();
+                    else
+                        player.Pause();
 
-            if (state.seek)
-                player.time = state.pos;
-        }
+                isDelayedPlay = isDelayedPlay && !state.isPaused;
+                if (state.seek || !state.isPaused)
+                    player.time = state.pos + (isDelayedPlay ? delayTime : 0);
+            }
 
         if (!tmpTex)
             if ((int)player.width != 0 && (int)player.height != 0)
@@ -484,6 +490,7 @@ public class VideoStuff : MonoBehaviour
     {
         state.isPaused = player.isPaused;
         state.isPlaying = player.isPlaying;
+        state.timeStamp = DateTime.Now;
         state.pos = player.time;
         state.seek = false;
     }
