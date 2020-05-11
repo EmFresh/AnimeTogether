@@ -2539,9 +2539,9 @@ MonoBehaviour:
   player: {fileID: 2002413652}
   video: {fileID: 524016899}
   isClient: 1
-  ipAddress: 50.101.236.245
-  port: 5000
-  videoURL: 
+  ipAddress: 192.168.0.12
+  port: 5555
+  videoURL: https://www1.mp4upload.com:282/d/swxt2zzdz3b4quuojcwrgm2pjpgmgihppyxu4ip2unxmgduiqedwciub/video.mp4
 --- !u!1 &2070861448
 GameObject:
   m_ObjectHideFlags: 0

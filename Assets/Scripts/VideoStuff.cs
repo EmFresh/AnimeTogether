@@ -212,8 +212,6 @@ public class VideoStuff : MonoBehaviour
                                     VideoStuff.state.pos = state.pos;
 
                                 stateReceived = true;
-                                foreach (var client in connections)
-                                    sendAllPacket(client.soc, state);
 
                                 break;
                             case MessageType.ClientPrepared:
@@ -279,10 +277,10 @@ public class VideoStuff : MonoBehaviour
                                         VideoStuff.state.pos = state.pos;
 
                                     stateReceived = true;
-                                     size = Marshal.SizeOf<PlayerState>();
+                                    size = Marshal.SizeOf<PlayerState>();
                                     sendAllPacket(client.soc, size);
                                     foreach (var client2 in connections)
-                                        sendAllPacket(client2.soc, state,size);
+                                        sendAllPacket(client2.soc, state, size);
 
                                     break;
                                 case MessageType.ClientPrepared:
@@ -301,7 +299,6 @@ public class VideoStuff : MonoBehaviour
                                     Marshal.FreeHGlobal(tmp);
 
                                     staticVideoURL = url;
-
                                     break;
                             }
                         }
