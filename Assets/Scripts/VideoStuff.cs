@@ -62,8 +62,8 @@ public class VideoStuff : MonoBehaviour
     [StructLayout(LayoutKind.Sequential)]
     public class Packet
     {
-        public MessageType type = MessageType.Unknown;
         public int size = Marshal.SizeOf<Packet>();
+        public MessageType type = MessageType.Unknown;
         public short index = -1;
     }
 
@@ -185,6 +185,7 @@ public class VideoStuff : MonoBehaviour
                         switch (unknown.type)
                         {
                             case MessageType.ClientIndex:
+                               
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
@@ -193,6 +194,7 @@ public class VideoStuff : MonoBehaviour
                                 VideoStuff.index = index.index;
                                 break;
                             case MessageType.PlayerState:
+                              
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
@@ -208,6 +210,7 @@ public class VideoStuff : MonoBehaviour
 
                                 break;
                             case MessageType.ClientPrepared:
+                              
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
@@ -223,7 +226,6 @@ public class VideoStuff : MonoBehaviour
                                 Marshal.FreeHGlobal(tmp);
 
                                 staticVideoURL = url;
-
                                 break;
                         }
                     }
@@ -240,7 +242,8 @@ public class VideoStuff : MonoBehaviour
 
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
-                            PrintError(err = getLastNetworkError());
+                            //    PrintError(err = getLastNetworkError());
+                            connections.RemoveAt(index--); //removes any connection that dose not exist
                             continue;
                         }
 
@@ -252,8 +255,9 @@ public class VideoStuff : MonoBehaviour
                             print("Received Packet!");
                             switch (unknown.type)
                             {
-
                                 case MessageType.PlayerState:
+                                    if (size != unknown.size)continue;
+
                                     tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                     Marshal.StructureToPtr(unknown, tmp, true);
                                     PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
@@ -264,13 +268,17 @@ public class VideoStuff : MonoBehaviour
 
                                     stateReceived = true;
                                     size = Marshal.SizeOf<PlayerState>();
-                                    sendAllPacket(connections[index].soc, size);
                                     for (int index2 = 0; index2 < connections.Count; index2++)
                                         if (index != index2)
+                                        {
+                                            sendAllPacket(connections[index].soc, size);
                                             sendAllPacket(connections[index2].soc, state, size);
-
+                                        }
                                     break;
+
                                 case MessageType.ClientPrepared:
+                                    if (size != unknown.size)continue;
+
                                     tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                     Marshal.StructureToPtr(unknown, tmp, true);
                                     ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
@@ -278,7 +286,10 @@ public class VideoStuff : MonoBehaviour
 
                                     connections[prep.index].prepared = prep;
                                     break;
+
                                 default:
+                                    if (size != unknown.size)continue;
+
                                     //TODO: receive video url string from host
                                     tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                     Marshal.StructureToPtr(unknown, tmp, true);
