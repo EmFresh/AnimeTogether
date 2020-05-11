@@ -18,6 +18,7 @@ public class VideoStuff : MonoBehaviour
     public GameObject video;
 
     public bool isClient;
+    public bool isIPv6;
     private static bool _isClient;
 
     public string ipAddress;
@@ -185,7 +186,7 @@ public class VideoStuff : MonoBehaviour
                         switch (unknown.type)
                         {
                             case MessageType.ClientIndex:
-                               
+
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
@@ -194,7 +195,7 @@ public class VideoStuff : MonoBehaviour
                                 VideoStuff.index = index.index;
                                 break;
                             case MessageType.PlayerState:
-                              
+
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
@@ -210,7 +211,7 @@ public class VideoStuff : MonoBehaviour
 
                                 break;
                             case MessageType.ClientPrepared:
-                              
+
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
@@ -344,8 +345,8 @@ public class VideoStuff : MonoBehaviour
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(ipAddress, port, IPVersion.IPv6);
-        soc = createSocketData.Invoke(IPVersion.IPv6);
+        ip = createIPEndpointData.Invoke(ipAddress, port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
         {
