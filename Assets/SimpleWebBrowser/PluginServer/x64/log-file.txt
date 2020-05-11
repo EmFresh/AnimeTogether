@@ -235,3 +235,27 @@
 2020-05-05 03:31:30,751 [3] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
 2020-05-05 03:33:12,689 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
 2020-05-05 03:33:12,729 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://ww5.dubbedanime.net/episode/58423-waiting-in-the-summer-episode-1-english-dubbed,memfile:72c9abb2-28a6-4c22-9407-efb67c7268d8,port:8451
+2020-05-11 04:46:57,899 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 04:46:57,983 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://ww5.dubbedanime.net/episode/58423-waiting-in-the-summer-episode-1-english-dubbed,memfile:db1a6d8f-a327-452e-93ca-cb28f619eb03,port:8577
+2020-05-11 04:49:18,363 [3] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
+2020-05-11 04:50:24,566 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 04:50:24,606 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:0ffc8ab7-2e0d-4c14-b361-e9aece698d46,port:8098
+2020-05-11 04:54:38,820 [8] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
+2020-05-11 04:55:01,521 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 04:55:01,557 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:d37d63c2-bbcd-441e-9cf0-332e497a4328,port:8858
+2020-05-11 04:55:15,220 [1] ERROR SharedPluginServer.Program [(null)] - CefRuntime return 0
+2020-05-11 04:55:15,485 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 04:55:15,601 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:d37d63c2-bbcd-441e-9cf0-332e497a4328,port:8858
+2020-05-11 04:56:47,527 [7] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
+2020-05-11 06:01:19,229 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 06:01:19,265 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:da112a45-d211-471c-97ab-825f5f71e379,port:8009
+2020-05-11 06:02:12,530 [7] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
+2020-05-11 06:02:18,269 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 06:02:18,307 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:7bbce3de-0e32-4aaa-84b9-d6fbaeed08c1,port:8405
+2020-05-11 06:03:04,718 [8] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
+2020-05-11 06:03:53,092 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 06:03:53,125 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:f143efea-f98e-4d89-a479-7cf08fd2abaa,port:8117
+2020-05-11 06:05:22,478 [10] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========
+2020-05-11 06:05:33,920 [1] INFO  SharedPluginServer.Program [(null)] - ===============START================
+2020-05-11 06:05:33,955 [1] INFO  SharedPluginServer.Program [(null)] - Starting plugin, settings:width:1024,height:768,url:https://9anime.ru/watch/pokemon-2019-dub.zm3w/vvv55ml,memfile:8a7fde86-d2f4-4c00-a2f3-d53555d5f43f,port:8216
+2020-05-11 06:09:43,822 [8] INFO  SharedPluginServer.App [(null)] - ==============SHUTTING DOWN==========

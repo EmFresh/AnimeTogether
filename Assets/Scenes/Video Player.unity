@@ -2541,7 +2541,7 @@ MonoBehaviour:
   isClient: 0
   ipAddress: 
   port: 5555
-  videoURL: https://s1.mp4upload.com:282/d/qsx5h4jlz3b4quuouswuqzcucp4q5kzknohx5p6snsgwbj54w46vmpjy/video.mp4
+  videoURL: https://www11.mp4upload.com:282/d/rkx2l7rhz3b4quuoa2wrozkqishu4ypsl66nbn7vixctjctpsxwvzaiv/video.mp4
 --- !u!1 &2070861448
 GameObject:
   m_ObjectHideFlags: 0

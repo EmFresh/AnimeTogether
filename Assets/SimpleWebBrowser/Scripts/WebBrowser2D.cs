@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Text;
-using UnityEngine;
 //using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using HtmlAgilityPack;
 using MessageLibrary;
+using ScrapySharp.Extensions;
+using ScrapySharp.Network;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
 
 namespace SimpleWebBrowser
 {
@@ -40,30 +42,9 @@ namespace SimpleWebBrowser
 
                 if (!readHtml)return;
 
+                
                 readHtml = false;
-                try
-                {
 
-                    htmlString = htmlString.Replace(" ", string.Empty);
-
-                    int index = findStrIndexNS(htmlString, ".mp4");
-                    while (index >= 0)
-                    {
-                        string htmltmp = htmlString.Substring(0, index + 4);
-                        htmlString = htmlString.Substring(index + 4);
-
-                        htmltmp = htmltmp.Substring(htmltmp.LastIndexOf('"') + 1);
-
-                        if (htmltmp.Contains("mp4upload"))
-                        {
-                            SceneManager.LoadScene("Video Player Scene", LoadSceneMode.Additive);
-                        }
-
-                        index = findStrIndexNS(htmlString, ".mp4");
-
-                    }
-                }
-                catch {}
             }
 
             #endregion
@@ -229,31 +210,17 @@ namespace SimpleWebBrowser
 
                 try
                 {
-                    using(WebClient client = new WebClient())
-                    {
-                        htmlString = client.DownloadString(url);
-                    }
-                    System.IO.File.WriteAllText(@"Assets\HTMLRead\html.txt", htmlString);
 
-                    // Now feed it to HTML Agility Pack:
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(htmlString);
-                   
+                    ScrapingBrowser browser = new ScrapingBrowser();
+                    // browser.NavigateToPage();
+                    var browser2 = browser.NavigateToPage(new Uri(url));
 
-                    // Now you could query the DOM. For example you could extract
-                    // all href attributes from all anchors:
-                    foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//video"))
-                    {
-                        var href = link.GetAttributes();
-                        foreach (var val in href)
-                        {
-                            print(val.Value);
-                        }
-                    }
+                    var list = browser2.Html.CssSelect("video");
 
                     readHtml = true;
                 }
-                catch (Exception e) { print(e); }
+                catch (Exception e) 
+                { print(e); }
             }
 
             #endregion
@@ -605,6 +572,7 @@ namespace SimpleWebBrowser
                             htmlString = client.DownloadString(_setUrlString);
                         }
                         readHtml = true;
+
                     }
                     catch {}
                 }

@@ -68,3 +68,9 @@ Assets/HTMLRead/
 Video Player Test/
 ProjectSettings/
 !Networking.sln
+
+packages/
+
+Vid Player Client/
+
+Vid Player Server/

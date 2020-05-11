@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using HtmlAgilityPack;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -100,7 +101,8 @@ public class VideoStuff : MonoBehaviour
         public bool isPlaying;
         public bool isPaused;
         public bool seek;
-        public DateTime timeStamp;
+
+        public long timeStamp;
         public double pos;
 
     }
@@ -242,13 +244,13 @@ public class VideoStuff : MonoBehaviour
 
                     for (int index = 0; index < connections.Count; index++)
                     {
-                        //if (pollEvents.Invoke(client.soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
-                        //{
-                        //    PrintError(err = getLastNetworkError());
-                        //    continue;
-                        //}
-                        //
-                        //if (client.soc.pollCount == 0)continue;
+                        if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                        {
+                            PrintError(err = getLastNetworkError());
+                            continue;
+                        }
+
+                        if (connections[index].soc.pollCount == 0)continue;
 
                         recvAllPacket(connections[index].soc, out size);
                         if (recvAllPacket(connections[index].soc, out unknown, size) == PResult.P_Success)
@@ -454,8 +456,7 @@ public class VideoStuff : MonoBehaviour
         if (player.isPrepared)
             if (stateReceived)
             {
-                double delayTime = DateTime.Now.Subtract(state.timeStamp).TotalSeconds;
-
+                double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
                 stateReceived = false;
                 player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
                 bool isDelayedPlay;
@@ -466,7 +467,7 @@ public class VideoStuff : MonoBehaviour
                         player.Pause();
 
                 isDelayedPlay = isDelayedPlay && !state.isPaused;
-                if (state.seek || !state.isPaused)
+                if (state.seek || isDelayedPlay)
                     player.time = state.pos + (isDelayedPlay ? delayTime : 0);
             }
 
@@ -490,7 +491,7 @@ public class VideoStuff : MonoBehaviour
     {
         state.isPaused = player.isPaused;
         state.isPlaying = player.isPlaying;
-        state.timeStamp = DateTime.Now;
+        state.timeStamp = DateTime.Now.Ticks;
         state.pos = player.time;
         state.seek = false;
     }
