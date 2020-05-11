@@ -136,7 +136,7 @@ public class VideoStuff : MonoBehaviour
                 }
 
                 connections.Add(new Client());
-                connections[connections.Count-1].soc = connect;
+                connections[connections.Count - 1].soc = connect;
 
                 print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
                 print("Port: " + connectIP.m_port);
@@ -238,8 +238,8 @@ public class VideoStuff : MonoBehaviour
                 }
                 else
                 {
-                    var tmpconnections = connections;
-                    foreach (var client in tmpconnections)
+
+                    for (int index = 0; index < connections.Count; index++)
                     {
                         //if (pollEvents.Invoke(client.soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         //{
@@ -249,8 +249,8 @@ public class VideoStuff : MonoBehaviour
                         //
                         //if (client.soc.pollCount == 0)continue;
 
-                        recvAllPacket(client.soc, out size);
-                        if (recvAllPacket(client.soc, out unknown, size) == PResult.P_Success)
+                        recvAllPacket(connections[index].soc, out size);
+                        if (recvAllPacket(connections[index].soc, out unknown, size) == PResult.P_Success)
                         {
                             print("Received Packet!");
                             switch (unknown.type)
@@ -258,10 +258,10 @@ public class VideoStuff : MonoBehaviour
                                 case MessageType.ClientIndex:
                                     tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                     Marshal.StructureToPtr(unknown, tmp, true);
-                                    ClientIndex index = Marshal.PtrToStructure<ClientIndex>(tmp);
+                                    ClientIndex cliindex = Marshal.PtrToStructure<ClientIndex>(tmp);
                                     Marshal.FreeHGlobal(tmp);
 
-                                    VideoStuff.index = index.index;
+                                    VideoStuff.index = cliindex.index;
                                     break;
                                 case MessageType.PlayerState:
                                     tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
@@ -277,9 +277,9 @@ public class VideoStuff : MonoBehaviour
 
                                     stateReceived = true;
                                     size = Marshal.SizeOf<PlayerState>();
-                                    sendAllPacket(client.soc, size);
-                                    foreach (var client2 in connections)
-                                        sendAllPacket(client2.soc, state, size);
+                                    sendAllPacket(connections[index].soc, size);
+                                    for (int index2 = 0; index2 < connections.Count; index2++)
+                                        sendAllPacket(connections[index2].soc, state, size);
 
                                     break;
                                 case MessageType.ClientPrepared:
