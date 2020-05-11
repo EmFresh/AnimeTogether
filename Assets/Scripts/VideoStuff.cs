@@ -141,24 +141,15 @@ public class VideoStuff : MonoBehaviour
                 connections.Add(new Client());
                 connections[connections.Count - 1].soc = connect;
 
-                print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
-                print("Port: " + connectIP.m_port);
-
                 int size = Marshal.SizeOf<ClientIndex>();
                 sendAllPacket(connect, size);
                 if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
 
-                print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
-                print("Port: " + connectIP.m_port);
-
                 size = staticVideoURL.Length + 1;
                 sendAllPacket(connect, size);
                 if (sendAllPacket(connect, staticVideoURL) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
-
-                print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
-                print("Port: " + connectIP.m_port);
 
                 size = Marshal.SizeOf<PlayerState>();
                 sendAllPacket(connect, size);
@@ -244,6 +235,9 @@ public class VideoStuff : MonoBehaviour
 
                     for (int index = 0; index < connections.Count; index++)
                     {
+                        //helps to minimize crashes
+                        for (var waiting = DateTime.Now; DateTime.Now.Subtract(waiting).TotalSeconds > 0.2f;);
+
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
                             PrintError(err = getLastNetworkError());
@@ -258,25 +252,15 @@ public class VideoStuff : MonoBehaviour
                             print("Received Packet!");
                             switch (unknown.type)
                             {
-                                case MessageType.ClientIndex:
-                                    tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
-                                    Marshal.StructureToPtr(unknown, tmp, true);
-                                    ClientIndex cliindex = Marshal.PtrToStructure<ClientIndex>(tmp);
-                                    Marshal.FreeHGlobal(tmp);
 
-                                    VideoStuff.index = cliindex.index;
-                                    break;
                                 case MessageType.PlayerState:
                                     tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                     Marshal.StructureToPtr(unknown, tmp, true);
                                     PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
                                     Marshal.FreeHGlobal(tmp);
 
-                                    if (VideoStuff.state.isPaused != state.isPaused)
-                                        VideoStuff.state.isPaused = state.isPaused;
-
-                                    if (state.seek)
-                                        VideoStuff.state.pos = state.pos;
+                                    while (stateReceived)
+                                        VideoStuff.state = state;
 
                                     stateReceived = true;
                                     size = Marshal.SizeOf<PlayerState>();
@@ -457,8 +441,7 @@ public class VideoStuff : MonoBehaviour
             if (stateReceived)
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
-                stateReceived = false;
-                player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
+
                 bool isDelayedPlay;
                 if (isDelayedPlay = (state.isPaused != player.isPaused))
                     if (player.isPaused || !player.isPlaying)
@@ -468,7 +451,9 @@ public class VideoStuff : MonoBehaviour
 
                 isDelayedPlay = isDelayedPlay && !state.isPaused;
                 if (state.seek || isDelayedPlay)
-                    player.time = state.pos + (isDelayedPlay ? delayTime : 0);
+                    player.time = state.pos /*+ (isDelayedPlay ? delayTime : 0)*/ ;
+                
+                stateReceived = false;
             }
 
         if (!tmpTex)
@@ -600,8 +585,6 @@ public class VideoStuff : MonoBehaviour
                 PrintError(str = getLastNetworkError());
 
             closeSocket.Invoke(soc);
-
-            
 
             if (!shutdownNetwork())
                 PrintError(str = getLastNetworkError());
