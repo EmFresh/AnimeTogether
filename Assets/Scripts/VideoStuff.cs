@@ -348,8 +348,8 @@ public class VideoStuff : MonoBehaviour
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(ipAddress, port, IPVersion.IPv4);
-        soc = createSocketData.Invoke(IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(ipAddress, port, IPVersion.IPv6);
+        soc = createSocketData.Invoke(IPVersion.IPv6);
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
         {
@@ -600,6 +600,8 @@ public class VideoStuff : MonoBehaviour
                 PrintError(str = getLastNetworkError());
 
             closeSocket.Invoke(soc);
+
+            
 
             if (!shutdownNetwork())
                 PrintError(str = getLastNetworkError());
