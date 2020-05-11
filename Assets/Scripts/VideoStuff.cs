@@ -259,14 +259,15 @@ public class VideoStuff : MonoBehaviour
                                     PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
                                     Marshal.FreeHGlobal(tmp);
 
-                                    while (stateReceived)
-                                        VideoStuff.state = state;
+                                    while (stateReceived); //this is correct 
+                                    VideoStuff.state = state;
 
                                     stateReceived = true;
                                     size = Marshal.SizeOf<PlayerState>();
                                     sendAllPacket(connections[index].soc, size);
                                     for (int index2 = 0; index2 < connections.Count; index2++)
-                                        sendAllPacket(connections[index2].soc, state, size);
+                                        if (index != index2)
+                                            sendAllPacket(connections[index2].soc, state, size);
 
                                     break;
                                 case MessageType.ClientPrepared:
@@ -452,7 +453,7 @@ public class VideoStuff : MonoBehaviour
                 isDelayedPlay = isDelayedPlay && !state.isPaused;
                 if (state.seek || isDelayedPlay)
                     player.time = state.pos /*+ (isDelayedPlay ? delayTime : 0)*/ ;
-                
+
                 stateReceived = false;
             }
 
