@@ -135,9 +135,8 @@ public class VideoStuff : MonoBehaviour
                     continue;
                 }
 
-                var tmp = new Client();
-                tmp.soc = connect;
-                connections.Add(tmp);
+                connections.Add(new Client());
+                connections[connections.Count-1].soc = connect;
 
                 print("IP: " + Marshal.PtrToStringAnsi(connectIP.m_ipString));
                 print("Port: " + connectIP.m_port);
