@@ -303,6 +303,9 @@ public class VideoStuff : MonoBehaviour
                         }
                         else
                             PrintError(err = getLastNetworkError());
+
+                        if (closeNetwork)
+                            break;
                     }
                 }
                 if (closeNetwork)
