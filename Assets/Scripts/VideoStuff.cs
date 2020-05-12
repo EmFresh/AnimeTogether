@@ -239,7 +239,7 @@ public class VideoStuff : MonoBehaviour
                     for (int index = 0; index < connections.Count; index++)
                     {
                         //helps to minimize crashes
-                        for (var waiting = DateTime.Now; DateTime.Now.Subtract(waiting).TotalSeconds > 0.2f;);
+                        networkWaitForSeconds(0.2f);
 
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
