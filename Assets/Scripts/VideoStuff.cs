@@ -13,31 +13,42 @@ using static Networking;
 
 public class VideoStuff : MonoBehaviour
 {
+    #region Variables
+
+    #region Editor
+
     public VideoPlayer player;
     //GameObject video;
     public GameObject video;
 
     public bool isClient;
-    public bool isIPv6;
     private static bool _isClient;
+    public bool isIPv6;
 
     public string ipAddress;
     public short port;
 
     public string videoURL;
     public static string staticVideoURL;
+    public float seekSpeed = 5, introSkip = 85; //1:25
+    #endregion
 
-    public static short index = 0;
-    static PlayerState state = new PlayerState();
-    static bool stateReceived = false;
+    #region Private
+
     RenderTexture tmpTex;
-    private Controls controls;
-    static bool closeNetwork = false;
-
+    Controls controls;
+    bool isPrepared;
+    static short index = 0;
+    static PlayerState state;
+    static bool stateReceived = false, closeNetwork = false;
+    static IPEndpointData ip;
+    static SocketData soc;
     static List<Client> connections = new List<Client>();
 
     //  UnityWebRequest web;
-    float seekSpeed = 5, introSkip = 85; //1:25
+    #endregion
+
+    #endregion
 
     #region Jobs 
     AcceptNetworkJob jobAccept;
@@ -53,6 +64,7 @@ public class VideoStuff : MonoBehaviour
 
     }
 
+    #region Classes
     public class Client
     {
         public SocketData soc;
@@ -118,7 +130,9 @@ public class VideoStuff : MonoBehaviour
         }
         public bool playerReady;
     }
+    #endregion
 
+    #region Structs
     public struct AcceptNetworkJob : IJob
     {
         public SocketData socket;
@@ -267,14 +281,12 @@ public class VideoStuff : MonoBehaviour
                                     while (stateReceived); //this is correct 
                                     VideoStuff.state = state;
 
+                                    if (state.seek)
+                                        for (int a = 0; a < connections.Count; ++a)
+                                            connections[a].prepared.playerReady = false;
+
                                     stateReceived = true;
-                                    size = Marshal.SizeOf<PlayerState>();
-                                    for (int index2 = 0; index2 < connections.Count; index2++)
-                                        if (index != index2)
-                                        {
-                                            sendAllPacket(connections[index].soc, size);
-                                            sendAllPacket(connections[index2].soc, state, size);
-                                        }
+
                                     break;
 
                                 case MessageType.ClientPrepared:
@@ -313,19 +325,14 @@ public class VideoStuff : MonoBehaviour
             }
         }
     }
+    #endregion
 
     #endregion
 
-    public static IPEndpointData ip;
-    public static SocketData soc;
-
-    /// <summary>
-    /// Awake is called when the script instance is being loaded.
-    /// </summary>
     void Awake()
     {
         _isClient = isClient;
-
+        state = new PlayerState();
         if (!_isClient)
             staticVideoURL = videoURL;
         //Setup controls
@@ -339,7 +346,11 @@ public class VideoStuff : MonoBehaviour
         player.skipOnDrop = true;
         player.url = staticVideoURL;
         player.errorReceived += VideoError;
-        player.prepareCompleted += VideoReady;
+        player.prepareCompleted += ctx => VideoReady();
+        player.seekCompleted += ctx => VideoSeekComplete();
+        // player.clockResyncOccurred;
+        // player.frameDropped;
+        //player.frameReady;
 
         if (!_isClient)
             if (staticVideoURL != "")
@@ -393,34 +404,19 @@ public class VideoStuff : MonoBehaviour
         hndReceive = jobReceive.Schedule();
     }
 
-    void VideoError(VideoPlayer source, string message)
-    {
-        Debug.LogError("Video Error Occurred: " + message);
-
-        print("attempting retry");
-
-        //  var tmp = source.url;
-        source.Prepare();
-    }
-
-    void VideoReady(VideoPlayer source)
-    {
-        print("Video is prepared!!");
-        //   playNPause();
-    }
-
     void OnEnable() =>
         controls.VideoPlayer.Enable();
 
     void OnDisable() =>
         controls.VideoPlayer.Disable();
 
-    // Update is called once per frame
     void Update()
     {
         _isClient = isClient;
 
         string err;
+
+        //receiving video url
         if (!_isClient)
         {
             if (staticVideoURL != videoURL)
@@ -453,10 +449,29 @@ public class VideoStuff : MonoBehaviour
             player.Prepare();
         }
 
+        //remote controles
         if (player.isPrepared)
             if (stateReceived)
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
+
+                if (!_isClient)
+                {
+                    bool cont = true;
+                    for (int index = 0; index < connections.Count; ++index)
+                        if (!connections[index].prepared.playerReady)
+                            cont = false;
+                    if (!cont)return;
+
+                    state.timeStamp = DateTime.Now.Ticks;
+                    int size = Marshal.SizeOf<PlayerState>();
+                    for (int index = 0; index < connections.Count; index++)
+                    {
+                        sendAllPacket(connections[index].soc, size);
+                        sendAllPacket(connections[index].soc, state, size);
+                    }
+
+                }
 
                 bool isDelayedPlay;
                 if (isDelayedPlay = (state.isPaused != player.isPaused))
@@ -488,6 +503,43 @@ public class VideoStuff : MonoBehaviour
 
     }
 
+    void VideoError(VideoPlayer source, string message)
+    {
+        Debug.LogError("Video Error Occurred: " + message);
+
+        print("attempting retry");
+
+        //  var tmp = source.url;
+        source.Prepare();
+    }
+
+    void VideoReady()
+    {
+        print("Video is prepared!!");
+
+        if (_isClient)
+        {
+            ClientPrepared tmp = new ClientPrepared();
+            tmp.playerReady = true;
+            sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
+            sendAllPacket(soc, tmp);
+        }
+        isPrepared = true;
+        //   playNPause();
+    }
+    void VideoSeekComplete()
+    {
+        print("Video seek compleated!!");
+
+        if (_isClient)
+        {
+            ClientPrepared tmp = new ClientPrepared();
+            tmp.playerReady = true;
+            sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
+            sendAllPacket(soc, tmp);
+        }
+        isPrepared = true;
+    }
     void updateState()
     {
         state.isPaused = player.isPaused;
@@ -499,12 +551,9 @@ public class VideoStuff : MonoBehaviour
 
     public void playNPause()
     {
-        if (player.isPaused || !player.isPlaying)
-            player.Play();
-        else
-            player.Pause();
 
         updateState();
+        state.isPaused = !state.isPaused;
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
@@ -512,30 +561,62 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, state);
         }
         else
+        {
+            // bool cont = true;
+            // for (int index = 0; index < connections.Count; ++index)
+            //     if (!connections[index].prepared.playerReady)
+            //         cont = false;
+            // if (!cont)return;
+            //
+            // foreach (var client in connections)
+            // {
+            //     sendAllPacket(client.soc, size);
+            //     sendAllPacket(client.soc, state);
+            // }
+            //
+            // if (player.isPaused || !player.isPlaying)
+            //     player.Play();
+            // else
+            //     player.Pause();
 
-            foreach (var client in connections)
-            {
-                sendAllPacket(client.soc, size);
-                sendAllPacket(client.soc, state);
-            }
+            stateReceived = true;
+        }
     }
     public void skipIntro()
     {
-        player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
 
         updateState();
+        state.pos = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
         state.seek = true;
+        int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
+            sendAllPacket(soc, size);
             sendAllPacket(soc, state);
+        }
+        else
+        {
+            //bool cont = true;
+            //for (int index = 0; index < connections.Count; ++index)
+            //    if (!connections[index].prepared.playerReady)
+            //        cont = false;
+            //if (!cont)return;
+            //
+            //foreach (var client in connections)
+            //{
+            //    sendAllPacket(client.soc, size);
+            //    sendAllPacket(client.soc, state);
+            //}
+            //player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
+            stateReceived = true;
         }
     }
     public void seekL()
     {
-        player.time = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
 
         updateState();
         state.seek = true;
+        state.pos = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
@@ -543,19 +624,28 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, state);
         }
         else
-
-            foreach (var client in connections)
-            {
-                sendAllPacket(client.soc, size);
-                sendAllPacket(client.soc, state);
-            }
+        {
+            //bool cont = true;
+            //for (int index = 0; index < connections.Count; ++index)
+            //    if (!connections[index].prepared.playerReady)
+            //        cont = false;
+            //if (!cont)return;
+            //
+            //foreach (var client in connections)
+            //{
+            //    sendAllPacket(client.soc, size);
+            //    sendAllPacket(client.soc, state);
+            //}
+            //player.time = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
+            stateReceived = true;
+        }
     }
     public void seekR()
     {
-        player.time = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
 
         updateState();
         state.seek = true;
+        state.pos = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
@@ -563,12 +653,21 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, state);
         }
         else
-
-            foreach (var client in connections)
-            {
-                sendAllPacket(client.soc, size);
-                sendAllPacket(client.soc, state);
-            }
+        {
+            //bool cont = true;
+            //for (int index = 0; index < connections.Count; ++index)
+            //    if (!connections[index].prepared.playerReady)
+            //        cont = false;
+            //if (!cont)return;
+            //
+            //foreach (var client in connections)
+            //{
+            //    sendAllPacket(client.soc, size);
+            //    sendAllPacket(client.soc, state);
+            //}
+            //player.time = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
+            stateReceived = true;
+        }
     }
     public void volUp()
     {
@@ -587,9 +686,7 @@ public class VideoStuff : MonoBehaviour
             player.SetDirectAudioMute(a, !player.GetDirectAudioMute(a));
     }
 
-    /// <summary>
-    /// Callback sent to all game objects before the application is quit.
-    /// </summary>
+    // Callback sent to all game objects before the application is quit.
     void OnApplicationQuit()
     {
         closeNetwork = true;
