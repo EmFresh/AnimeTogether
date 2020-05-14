@@ -128,7 +128,7 @@ public class VideoStuff : MonoBehaviour
             type = MessageType.ClientPrepared;
             size = Marshal.SizeOf<ClientPrepared>();
         }
-        public bool playerReady=false;
+        public bool playerReady = false;
     }
     #endregion
 
@@ -258,8 +258,20 @@ public class VideoStuff : MonoBehaviour
 
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
-                            //    PrintError(err = getLastNetworkError());
-                            connections.RemoveAt(index--); //removes any connection that dose not exist
+                                PrintError(err = getLastNetworkError());
+                            try
+                            {
+                                connections.RemoveAt(index--); //removes any connection that dose not exist
+                                print("Connection removed!!");
+                                for (int index2 = index; index2 < connections.Count; index2++)
+                                {
+                                    size = Marshal.SizeOf<ClientIndex>();
+                                    sendAllPacket(connections[index2].soc, size);
+                                    if (sendAllPacket(connections[index2].soc, new ClientIndex((short)index2)) == PResult.P_UnknownError)
+                                        PrintError(err = getLastNetworkError());
+                                }
+                            }
+                            catch {/*just incase*/}
                             continue;
                         }
 
@@ -297,8 +309,9 @@ public class VideoStuff : MonoBehaviour
                                     Marshal.StructureToPtr(unknown, tmp, true);
                                     ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(tmp);
                                     Marshal.FreeHGlobal(tmp);
+                                    prep.index = (short)index;
 
-                                    connections[prep.index].prepared = prep;
+                                    connections[index].prepared = prep;
                                     break;
 
                                 default:
