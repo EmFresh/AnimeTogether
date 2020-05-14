@@ -248,7 +248,7 @@ public class VideoStuff : MonoBehaviour
                     else
                         PrintError(err = getLastNetworkError());
                 }
-                else
+                else //server
                 {
 
                     for (int index = 0; index < connections.Count; index++)
@@ -349,7 +349,7 @@ public class VideoStuff : MonoBehaviour
         state = new PlayerState();
         //  if (!_isClient)
         staticVideoURL = videoURL;
-       
+
         //Setup controls
         controls = new Controls();
         controls.VideoPlayer.Play.performed += ctx => playNPause();
@@ -367,7 +367,7 @@ public class VideoStuff : MonoBehaviour
         // player.frameDropped;
         //player.frameReady;
 
-        if (!_isClient)
+        if (!_isClient) //server
             if (staticVideoURL != "")
                 player.Prepare();
 
@@ -376,10 +376,11 @@ public class VideoStuff : MonoBehaviour
 
         ip = createIPEndpointData.Invoke(ipAddress, port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        string err;
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
         {
-            print(getLastNetworkError());
+            PrintError(err = getLastNetworkError());
             return;
         }
         if (!_isClient) //server
@@ -397,7 +398,7 @@ public class VideoStuff : MonoBehaviour
             }
             else
             {
-                PrintError(getLastNetworkError());
+                PrintError(err = getLastNetworkError());
                 return;
             }
 
@@ -411,7 +412,7 @@ public class VideoStuff : MonoBehaviour
             }
             else
             {
-                PrintError(getLastNetworkError());
+                PrintError(err = getLastNetworkError());
             }
         }
 
@@ -431,7 +432,7 @@ public class VideoStuff : MonoBehaviour
         string err;
 
         //receiving video url
-        if (!_isClient)
+        if (!_isClient) //server
         {
             if (staticVideoURL != videoURL)
                 foreach (var connect in connections)
@@ -469,7 +470,7 @@ public class VideoStuff : MonoBehaviour
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
 
-                if (!_isClient)
+                if (!_isClient) //server
                 {
                     bool cont = true;
                     for (int index = 0; index < connections.Count; ++index)
@@ -707,15 +708,15 @@ public class VideoStuff : MonoBehaviour
         closeNetwork = true;
         if (isNetworkInit)
         {
-            string str;
+            string err;
 
             if (setBlocking.Invoke(soc, false) == PResult.P_UnknownError)
-                PrintError(str = getLastNetworkError());
+                PrintError(err = getLastNetworkError());
 
             closeSocket.Invoke(soc);
 
             if (!shutdownNetwork())
-                PrintError(str = getLastNetworkError());
+                PrintError(err = getLastNetworkError());
 
             hndReceive.Complete();
             hndAccept.Complete();
