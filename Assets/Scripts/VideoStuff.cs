@@ -520,7 +520,9 @@ public class VideoStuff : MonoBehaviour
 
         if (_isClient)
         {
+
             ClientPrepared tmp = new ClientPrepared();
+            tmp.index = index;
             tmp.playerReady = true;
             sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
             sendAllPacket(soc, tmp);
