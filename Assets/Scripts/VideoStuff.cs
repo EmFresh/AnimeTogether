@@ -128,7 +128,7 @@ public class VideoStuff : MonoBehaviour
             type = MessageType.ClientPrepared;
             size = Marshal.SizeOf<ClientPrepared>();
         }
-        public bool playerReady;
+        public bool playerReady=false;
     }
     #endregion
 
@@ -155,6 +155,7 @@ public class VideoStuff : MonoBehaviour
 
                 connections.Add(new Client());
                 connections[connections.Count - 1].soc = connect;
+                connections[connections.Count - 1].prepared = new ClientPrepared();
 
                 int size = Marshal.SizeOf<ClientIndex>();
                 sendAllPacket(connect, size);
