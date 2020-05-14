@@ -258,7 +258,7 @@ public class VideoStuff : MonoBehaviour
 
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
-                                PrintError(err = getLastNetworkError());
+                            PrintError(err = getLastNetworkError());
                             try
                             {
                                 connections.RemoveAt(index--); //removes any connection that dose not exist
@@ -271,7 +271,7 @@ public class VideoStuff : MonoBehaviour
                                         PrintError(err = getLastNetworkError());
                                 }
                             }
-                            catch {/*just incase*/}
+                            catch { /*just incase*/ }
                             continue;
                         }
 
@@ -347,8 +347,9 @@ public class VideoStuff : MonoBehaviour
     {
         _isClient = isClient;
         state = new PlayerState();
-        if (!_isClient)
-            staticVideoURL = videoURL;
+        //  if (!_isClient)
+        staticVideoURL = videoURL;
+       
         //Setup controls
         controls = new Controls();
         controls.VideoPlayer.Play.performed += ctx => playNPause();
@@ -420,7 +421,6 @@ public class VideoStuff : MonoBehaviour
 
     void OnEnable() =>
         controls.VideoPlayer.Enable();
-
     void OnDisable() =>
         controls.VideoPlayer.Disable();
 
@@ -526,7 +526,6 @@ public class VideoStuff : MonoBehaviour
         //  var tmp = source.url;
         source.Prepare();
     }
-
     void VideoReady()
     {
         print("Video is prepared!!");
