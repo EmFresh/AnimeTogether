@@ -194,6 +194,11 @@ public class VideoStuff : MonoBehaviour
                 unknown = new Unknown();
                 if (_isClient)
                 {
+                    {//prevent unknown data collection
+                        if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)continue;
+                        if (soc.pollCount == 0)continue;
+                    }
+                   
                     recvAllPacket(soc, out size);
                     if (recvAllPacket(soc, out unknown, size) == PResult.P_Success)
                     {
@@ -235,13 +240,14 @@ public class VideoStuff : MonoBehaviour
                                 connections[prep.index].prepared = prep;
                                 break;
                             default:
-                                //TODO: receive video url string from host
+                                //TODO: receive video url string from host or bad data
                                 tmp = Marshal.AllocHGlobal(Marshal.SizeOf<Unknown>());
                                 Marshal.StructureToPtr(unknown, tmp, true);
                                 string url = Marshal.PtrToStringAnsi(tmp);
                                 Marshal.FreeHGlobal(tmp);
 
-                                staticVideoURL = url;
+                                if (url.Contains("https://") || url.Contains("http://"))
+                                    staticVideoURL = url;
                                 break;
                         }
                     }
@@ -393,7 +399,7 @@ public class VideoStuff : MonoBehaviour
                 };
                 hndAccept = jobAccept.Schedule();
 
-                jobReceive = new ReceiveNetworkJob(){};
+                jobReceive = new ReceiveNetworkJob() {};
                 hndReceive = jobReceive.Schedule();
                 //TODO: create a network listening job 
             }
