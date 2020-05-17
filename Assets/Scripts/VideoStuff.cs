@@ -194,10 +194,10 @@ public class VideoStuff : MonoBehaviour
                 unknown = new Unknown();
                 if (_isClient)
                 {
-                    {//prevent unknown data collection
+                    //prevent unknown data collection
                         if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)continue;
                         if (soc.pollCount == 0)continue;
-                    }
+                    
                    
                     recvAllPacket(soc, out size);
                     if (recvAllPacket(soc, out unknown, size) == PResult.P_Success)
@@ -340,6 +340,7 @@ public class VideoStuff : MonoBehaviour
                             break;
                     }
                 }
+
                 if (closeNetwork)
                     break;
             }
