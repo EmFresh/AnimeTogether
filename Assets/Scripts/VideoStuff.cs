@@ -220,14 +220,9 @@ public class VideoStuff : MonoBehaviour
                                 PlayerState state = Marshal.PtrToStructure<PlayerState>(tmp);
                                 Marshal.FreeHGlobal(tmp);
 
-                                if (VideoStuff.state.isPaused != state.isPaused)
-                                    VideoStuff.state.isPaused = state.isPaused;
-
-                                if (state.seek)
-                                    VideoStuff.state.pos = state.pos;
+                                VideoStuff.state = state;
 
                                 stateReceived = true;
-
                                 break;
                             case MessageType.ClientPrepared:
 
@@ -482,11 +477,11 @@ public class VideoStuff : MonoBehaviour
 
                 if (!_isClient) //server
                 {
-                   // bool cont = true;
-                   // for (int index = 0; index < connections.Count; ++index)
-                   //     if (!connections[index].prepared.playerReady)
-                   //         cont = false;
-                   // if (!cont)return;
+                    // bool cont = true;
+                    // for (int index = 0; index < connections.Count; ++index)
+                    //     if (!connections[index].prepared.playerReady)
+                    //         cont = false;
+                    // if (!cont)return;
 
                     state.timeStamp = DateTime.Now.Ticks;
                     int size = Marshal.SizeOf<PlayerState>();
@@ -626,9 +621,9 @@ public class VideoStuff : MonoBehaviour
     public void seekR()
     {
 
-        if(!_isClient)
+        if (!_isClient)
         {
-             stateReceived = true;
+            stateReceived = true;
         }
         updateState();
         state.seek = true;
