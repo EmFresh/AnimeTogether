@@ -195,10 +195,9 @@ public class VideoStuff : MonoBehaviour
                 if (_isClient)
                 {
                     //prevent unknown data collection
-                        if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)continue;
-                        if (soc.pollCount == 0)continue;
-                    
-                   
+                    if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)continue;
+                    if (soc.pollCount == 0)continue;
+
                     recvAllPacket(soc, out size);
                     if (recvAllPacket(soc, out unknown, size) == PResult.P_Success)
                     {
@@ -265,6 +264,8 @@ public class VideoStuff : MonoBehaviour
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
                             PrintError(err = getLastNetworkError());
+                            if (closeNetwork)
+                                break;
                             try
                             {
                                 connections.RemoveAt(index--); //removes any connection that dose not exist
@@ -332,6 +333,8 @@ public class VideoStuff : MonoBehaviour
                                     staticVideoURL = url;
                                     break;
                             }
+                            if (closeNetwork)
+                                break;
                         }
                         else
                             PrintError(err = getLastNetworkError());
@@ -479,11 +482,11 @@ public class VideoStuff : MonoBehaviour
 
                 if (!_isClient) //server
                 {
-                    bool cont = true;
-                    for (int index = 0; index < connections.Count; ++index)
-                        if (!connections[index].prepared.playerReady)
-                            cont = false;
-                    if (!cont)return;
+                   // bool cont = true;
+                   // for (int index = 0; index < connections.Count; ++index)
+                   //     if (!connections[index].prepared.playerReady)
+                   //         cont = false;
+                   // if (!cont)return;
 
                     state.timeStamp = DateTime.Now.Ticks;
                     int size = Marshal.SizeOf<PlayerState>();
@@ -492,7 +495,6 @@ public class VideoStuff : MonoBehaviour
                         sendAllPacket(connections[index].soc, size);
                         sendAllPacket(connections[index].soc, state, size);
                     }
-
                 }
 
                 bool isDelayedPlay;
@@ -575,6 +577,9 @@ public class VideoStuff : MonoBehaviour
     public void playNPause()
     {
 
+        if (!_isClient)
+            stateReceived = true;
+
         updateState();
         state.isPaused = !state.isPaused;
         int size = Marshal.SizeOf<PlayerState>();
@@ -583,30 +588,13 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
-        else
-        {
-            // bool cont = true;
-            // for (int index = 0; index < connections.Count; ++index)
-            //     if (!connections[index].prepared.playerReady)
-            //         cont = false;
-            // if (!cont)return;
-            //
-            // foreach (var client in connections)
-            // {
-            //     sendAllPacket(client.soc, size);
-            //     sendAllPacket(client.soc, state);
-            // }
-            //
-            // if (player.isPaused || !player.isPlaying)
-            //     player.Play();
-            // else
-            //     player.Pause();
-
-            stateReceived = true;
-        }
     }
     public void skipIntro()
     {
+        if (!_isClient)
+        {
+            stateReceived = true;
+        }
 
         updateState();
         state.pos = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
@@ -617,26 +605,13 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
-        else
-        {
-            //bool cont = true;
-            //for (int index = 0; index < connections.Count; ++index)
-            //    if (!connections[index].prepared.playerReady)
-            //        cont = false;
-            //if (!cont)return;
-            //
-            //foreach (var client in connections)
-            //{
-            //    sendAllPacket(client.soc, size);
-            //    sendAllPacket(client.soc, state);
-            //}
-            //player.time = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
-            stateReceived = true;
-        }
     }
     public void seekL()
     {
-
+        if (!_isClient)
+        {
+            stateReceived = true;
+        }
         updateState();
         state.seek = true;
         state.pos = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
@@ -646,26 +621,15 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
-        else
-        {
-            //bool cont = true;
-            //for (int index = 0; index < connections.Count; ++index)
-            //    if (!connections[index].prepared.playerReady)
-            //        cont = false;
-            //if (!cont)return;
-            //
-            //foreach (var client in connections)
-            //{
-            //    sendAllPacket(client.soc, size);
-            //    sendAllPacket(client.soc, state);
-            //}
-            //player.time = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
-            stateReceived = true;
-        }
+
     }
     public void seekR()
     {
 
+        if(!_isClient)
+        {
+             stateReceived = true;
+        }
         updateState();
         state.seek = true;
         state.pos = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
@@ -674,22 +638,6 @@ public class VideoStuff : MonoBehaviour
         {
             sendAllPacket(soc, size);
             sendAllPacket(soc, state);
-        }
-        else
-        {
-            //bool cont = true;
-            //for (int index = 0; index < connections.Count; ++index)
-            //    if (!connections[index].prepared.playerReady)
-            //        cont = false;
-            //if (!cont)return;
-            //
-            //foreach (var client in connections)
-            //{
-            //    sendAllPacket(client.soc, size);
-            //    sendAllPacket(client.soc, state);
-            //}
-            //player.time = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
-            stateReceived = true;
         }
     }
     public void volUp()
