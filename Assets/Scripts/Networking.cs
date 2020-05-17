@@ -409,7 +409,7 @@ public class Networking
         dest = default(T);
         if (res == PResult.P_Success)
         {
-            Debug.Log("number of bytes: " + numberOfBytes.ToString());
+       //     Debug.Log("number of bytes: " + numberOfBytes.ToString());
             dest = Marshal.PtrToStructure<T>(tmp);
         }
         Marshal.FreeHGlobal(tmp);

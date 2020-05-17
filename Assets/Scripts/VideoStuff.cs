@@ -195,7 +195,12 @@ public class VideoStuff : MonoBehaviour
                 if (_isClient)
                 {
                     //prevent unknown data collection
-                    if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)continue;
+                    if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                    {
+                        if (closeNetwork)
+                            break;
+                        continue;
+                    }
                     if (soc.pollCount == 0)continue;
 
                     recvAllPacket(soc, out size);
