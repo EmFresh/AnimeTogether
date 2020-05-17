@@ -26,7 +26,7 @@ public class VideoStuff : MonoBehaviour
     public bool isIPv6;
 
     public string ipAddress;
-    public short port;
+    public ushort port;
 
     public string videoURL;
     public static string staticVideoURL;
@@ -144,7 +144,7 @@ public class VideoStuff : MonoBehaviour
 
                 SocketData connect = new SocketData();
                 IPEndpointData connectIP = new IPEndpointData();
-                if (acceptSocket.Invoke(socket, connect, connectIP) == PResult.P_UnknownError)
+                if (acceptSocket.Invoke(socket, connect, connectIP) == PResult.P_UnknownError) //check
                 {
                     PrintError(err = getLastNetworkError());
 
@@ -374,7 +374,7 @@ public class VideoStuff : MonoBehaviour
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(ipAddress, port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(ipAddress, (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         string err;
 
@@ -391,9 +391,10 @@ public class VideoStuff : MonoBehaviour
                 {
                 socket = soc
                 };
-
                 hndAccept = jobAccept.Schedule();
 
+                jobReceive = new ReceiveNetworkJob(){};
+                hndReceive = jobReceive.Schedule();
                 //TODO: create a network listening job 
             }
             else
@@ -407,7 +408,8 @@ public class VideoStuff : MonoBehaviour
         {
             if (connectEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
-
+                jobReceive = new ReceiveNetworkJob();
+                hndReceive = jobReceive.Schedule();
                 print("connected to host");
             }
             else
@@ -416,8 +418,6 @@ public class VideoStuff : MonoBehaviour
             }
         }
 
-        jobReceive = new ReceiveNetworkJob();
-        hndReceive = jobReceive.Schedule();
     }
 
     void OnEnable() =>
@@ -497,7 +497,7 @@ public class VideoStuff : MonoBehaviour
 
                 isDelayedPlay = isDelayedPlay && !state.isPaused;
                 if (state.seek || isDelayedPlay)
-                    player.time = state.pos /*+ (isDelayedPlay ? delayTime : 0)*/ ;
+                    player.time = state.pos + (isDelayedPlay ? delayTime : 0);
 
                 stateReceived = false;
             }

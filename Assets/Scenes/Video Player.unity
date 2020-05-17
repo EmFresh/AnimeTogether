@@ -3114,9 +3114,9 @@ MonoBehaviour:
   video: {fileID: 524016899}
   isClient: 0
   isIPv6: 1
-  ipAddress: 2607:fea8:5a60:952:38f1:57f2:df7d:dcbb
+  ipAddress: 
   port: 5555
-  videoURL: https://www3.mp4upload.com:282/d/r2x5bgzdz3b4quuogwwqamcxjwxidc72ccxg4mk5mhplz7hjy3o7tccs/video.mp4
+  videoURL: https://www3.mp4upload.com:282/d/r2xvazrkz3b4quuow2wqwmccj3akzcaqewjs2goduqn2yu5wzbhmjzkf/video.mp4
   seekSpeed: 5
   introSkip: 85
 --- !u!1 &2070861448

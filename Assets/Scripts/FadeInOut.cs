@@ -41,9 +41,9 @@ public class FadeInOut : MonoBehaviour
     {
         CancelInvoke("fadeOut");
         currentTime = 0;
+        var cg = GetComponent<CanvasGroup>();
         cg.blocksRaycasts = true; //enables the buttons to be pressed
 
-        var cg = GetComponent<CanvasGroup>();
         cg.alpha = Mathf.Clamp((fadeTime += Time.deltaTime) / fadeinTime, 0, 1);
         if (GetComponent<CanvasGroup>().alpha >= 1)
         {
