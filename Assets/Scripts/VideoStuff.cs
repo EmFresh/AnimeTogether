@@ -357,9 +357,10 @@ public class VideoStuff : MonoBehaviour
     {
         _isClient = isClient;
         state = new PlayerState();
-        //  if (!_isClient)
-        staticVideoURL = videoURL;
-
+        if (!_isClient)
+            staticVideoURL = videoURL;
+        else
+            videoURL = staticVideoURL;
         //Setup controls
         controls = new Controls();
         controls.VideoPlayer.Play.performed += ctx => playNPause();
@@ -369,7 +370,8 @@ public class VideoStuff : MonoBehaviour
         controls.VideoPlayer.VolumeDown.performed += ctx => volDown();
 
         player.skipOnDrop = true;
-        player.url = staticVideoURL;
+        if (staticVideoURL != "")
+            player.url = staticVideoURL;
         player.errorReceived += VideoError;
         player.prepareCompleted += ctx => VideoReady();
         player.seekCompleted += ctx => VideoSeekComplete();
@@ -448,7 +450,6 @@ public class VideoStuff : MonoBehaviour
                 foreach (var connect in connections)
                 {
                     staticVideoURL = videoURL;
-                    player.Stop();
                     updateState();
 
                     int size = Marshal.SizeOf<PlayerState>();
