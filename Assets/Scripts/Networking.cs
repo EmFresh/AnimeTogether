@@ -366,7 +366,7 @@ public class Networking
     {
         numberOfBytes = numberOfBytes >= 0 ? numberOfBytes : Marshal.SizeOf<T>();
 
-        Debug.Log("number of bytes: " + numberOfBytes.ToString());
+      //  Debug.Log("number of bytes: " + numberOfBytes.ToString());
 
         IntPtr tmp = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
         Marshal.StructureToPtr(data, tmp, true);
@@ -384,7 +384,7 @@ public class Networking
     {
         numberOfBytes = numberOfBytes >= 0 ? numberOfBytes : data.Length + 1;
 
-        Debug.Log("number of bytes: " + numberOfBytes.ToString());
+    //    Debug.Log("number of bytes: " + numberOfBytes.ToString());
         IntPtr tmp = Marshal.StringToHGlobalAnsi(data);
         PResult res = sendAllPacketData(in soc, tmp, numberOfBytes);
 
@@ -404,7 +404,7 @@ public class Networking
         IntPtr tmp = Marshal.AllocHGlobal(numberOfBytes);
         //Marshal.StructureToPtr(dest, tmp, true);
         PResult res = recvAllPacketData(in soc, tmp, numberOfBytes);
-        Debug.Log("number of bytes: " + numberOfBytes.ToString());
+//        Debug.Log("number of bytes: " + numberOfBytes.ToString());
 
         dest = default(T);
         if (res == PResult.P_Success)
@@ -427,7 +427,7 @@ public class Networking
         dest = "";
         if (res == PResult.P_Success)
         {
-            Debug.Log("number of bytes: " + numberOfBytes.ToString());
+  //          Debug.Log("number of bytes: " + numberOfBytes.ToString());
             dest = Marshal.PtrToStringAnsi(tmp);
         }
         Marshal.FreeHGlobal(tmp);
