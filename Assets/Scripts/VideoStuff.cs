@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using HtmlAgilityPack;
-using MyBox;
+//using MyBox;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEditor;
@@ -21,11 +21,11 @@ public class VideoStuff : MonoBehaviour
 
     #region Editor
 
-    [Foldout("Setable Objects", true)]
-    [InitializationField] public VideoPlayer player;
-    [InitializationField] public GameObject video;
+    /*[Foldout("Setable Objects", true)]
+    [InitializationField]*/ public VideoPlayer player;
+   /* [InitializationField] */public GameObject video;
 
-    [Foldout("Networking Settings", true)]
+  /*  [Foldout("Networking Settings", true)]*/
 
     public bool isClient;
     private static bool _isClient;
@@ -34,14 +34,14 @@ public class VideoStuff : MonoBehaviour
     public string ipAddress;
     public ushort port;
 
-    [Foldout("Video Settings", true)]
+   /* [Foldout("Video Settings", true)]*/
 
     public VideoSource source;
 
-    [ConditionalField("source", false, VideoSource.Url)] public string videoURL;
+  /*  [ConditionalField("source", false, VideoSource.Url)] */public string videoURL;
 
-    [ConditionalField("source", false, VideoSource.VideoClip)] public string path;
-    [ConditionalField("source", false, VideoSource.VideoClip)] public string file;
+    /*[ConditionalField("source", false, VideoSource.VideoClip)] */public string path;
+  /*  [ConditionalField("source", false, VideoSource.VideoClip)] */public string file;
     public static string staticVideoURL;
     [Tooltip("Set seek speed in seconds")]
     public float seekSpeed = 5;
