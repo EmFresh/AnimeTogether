@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+[RequireComponent(typeof(CanvasGroup))]
 public class FadeInOut : MonoBehaviour
 {
+    public bool enablefadeIn = true;
     public float delay, fadeoutTime, fadeinTime;
     float currentTime = 0, fadeTime = 1;
     bool isFadeOut = true;
@@ -16,7 +19,9 @@ public class FadeInOut : MonoBehaviour
     void Awake()
     {
         controls = new Controls();
-        controls.VideoPlayer.MouseInteract.performed += ctx => fadeInInvoke();
+
+        if (enablefadeIn)
+            controls.VideoPlayer.MouseInteract.performed += ctx => fadeInInvoke();
     }
     void OnEnable() => controls.VideoPlayer.Enable();
 

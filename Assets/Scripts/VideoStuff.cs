@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using HtmlAgilityPack;
+using MyBox;
 using Unity.Jobs;
+using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Networking;
@@ -11,15 +14,18 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using static Networking;
 
+[RequireComponent(typeof(VideoPlayer))]
 public class VideoStuff : MonoBehaviour
 {
     #region Variables
 
     #region Editor
 
+    [Foldout("Setable Objects", true)]
     public VideoPlayer player;
-    //GameObject video;
     public GameObject video;
+
+    [Foldout("Networking Settings", true)]
 
     public bool isClient;
     private static bool _isClient;
@@ -28,12 +34,21 @@ public class VideoStuff : MonoBehaviour
     public string ipAddress;
     public ushort port;
 
-    public string videoURL;
+    [Foldout("Video Settings", true)]
+
+    public VideoSource source;
+
+    [ConditionalField("source", false, VideoSource.Url)] public string videoURL;
+
+    [ConditionalField("source", false, VideoSource.VideoClip)] public string path;
+    [ConditionalField("source", false, VideoSource.VideoClip)] public string file;
     public static string staticVideoURL;
-    public float seekSpeed = 5, introSkip = 85; //1:25
+    [Tooltip("Set seek speed in seconds")]
+    public float seekSpeed = 5;
+    [Tooltip("Set intro skip in seconds")] public float introSkip = 85; //1:25
     #endregion
 
-    #region Private
+    #region Private/Internal
 
     RenderTexture tmpTex;
     Controls controls;
@@ -147,7 +162,7 @@ public class VideoStuff : MonoBehaviour
                 if (acceptSocket.Invoke(socket, connect, connectIP) == PResult.P_UnknownError) //check
                 {
                     PrintError(err = getLastNetworkError());
-
+                    CreatePopups.popupMsgs.Add(err);
                     if (closeNetwork)
                         break;
                     continue;
@@ -172,7 +187,8 @@ public class VideoStuff : MonoBehaviour
                 if (sendAllPacket(connect, state) == PResult.P_UnknownError)
                     PrintError(err = getLastNetworkError());
 
-                print("new connection!");
+                print(err = "new connection!");
+                CreatePopups.popupMsgs.Add(err);
 
                 if (closeNetwork)
                     break;
@@ -269,7 +285,8 @@ public class VideoStuff : MonoBehaviour
                             try
                             {
                                 connections.RemoveAt(index--); //removes any connection that dose not exist
-                                print("Connection removed!!");
+                                print(err = "Connection removed!!");
+                                CreatePopups.popupMsgs.Add(err);
                                 for (int index2 = index; index2 < connections.Count; index2++)
                                 {
                                     size = Marshal.SizeOf<ClientIndex>();
@@ -361,6 +378,7 @@ public class VideoStuff : MonoBehaviour
             staticVideoURL = videoURL;
         else
             videoURL = staticVideoURL;
+
         //Setup controls
         controls = new Controls();
         controls.VideoPlayer.Play.performed += ctx => playNPause();
@@ -369,9 +387,19 @@ public class VideoStuff : MonoBehaviour
         controls.VideoPlayer.VolumeUp.performed += ctx => volUp();
         controls.VideoPlayer.VolumeDown.performed += ctx => volDown();
 
+        player = GetComponent<VideoPlayer>();
         player.skipOnDrop = true;
-        if (staticVideoURL != "")
-            player.url = staticVideoURL;
+        player.playOnAwake = false;
+        player.isLooping = false;
+        player.source = VideoSource.Url; //I only need this one
+        if (source == VideoSource.VideoClip)
+            player.url = path + file;
+        else
+        {
+            if (staticVideoURL != "")
+                player.url = staticVideoURL;
+        }
+
         player.errorReceived += VideoError;
         player.prepareCompleted += ctx => VideoReady();
         player.seekCompleted += ctx => VideoSeekComplete();
@@ -422,7 +450,9 @@ public class VideoStuff : MonoBehaviour
             {
                 jobReceive = new ReceiveNetworkJob();
                 hndReceive = jobReceive.Schedule();
-                print("connected to host");
+                print(err = "connected to host");
+                CreatePopups.popupMsgs.Add(err);
+
             }
             else
             {
@@ -444,35 +474,39 @@ public class VideoStuff : MonoBehaviour
         string err;
 
         //receiving video url
-        if (!_isClient) //server
+        if (source == VideoSource.Url)
         {
-            if (staticVideoURL != videoURL)
-                foreach (var connect in connections)
-                {
-                    staticVideoURL = videoURL;
-                    updateState();
+            if (!_isClient) //server
+            {
+                if (staticVideoURL != videoURL)
+                    foreach (var connect in connections)
+                    {
+                        staticVideoURL = videoURL;
+                        updateState();
 
-                    int size = Marshal.SizeOf<PlayerState>();
-                    sendAllPacket(connect.soc, size);
-                    if (sendAllPacket(connect.soc, state) == PResult.P_UnknownError)
-                        PrintError(err = getLastNetworkError());
+                        int size = Marshal.SizeOf<PlayerState>();
+                        sendAllPacket(connect.soc, size);
+                        if (sendAllPacket(connect.soc, state) == PResult.P_UnknownError)
+                            PrintError(err = getLastNetworkError());
 
-                    size = staticVideoURL.Length + 1;
-                    sendAllPacket(connect.soc, size);
-                    if (sendAllPacket(connect.soc, staticVideoURL) == PResult.P_UnknownError)
-                        PrintError(err = getLastNetworkError());
-                    player.url = staticVideoURL;
-                    player.Prepare();
-                }
-        }
-        else if (staticVideoURL != videoURL)
-        {
-            print("received new URL");
+                        size = staticVideoURL.Length + 1;
+                        sendAllPacket(connect.soc, size);
+                        if (sendAllPacket(connect.soc, staticVideoURL) == PResult.P_UnknownError)
+                            PrintError(err = getLastNetworkError());
+                        player.url = staticVideoURL;
+                        player.Prepare();
+                    }
+            }
+            else if (staticVideoURL != videoURL)
+            {
+                print(err = "received new URL");
+                CreatePopups.popupMsgs.Add(err);
 
-            videoURL = staticVideoURL;
-            player.Stop();
-            player.url = staticVideoURL;
-            player.Prepare();
+                videoURL = staticVideoURL;
+                player.Stop();
+                player.url = staticVideoURL;
+                player.Prepare();
+            }
         }
 
         //remote controles
@@ -540,6 +574,7 @@ public class VideoStuff : MonoBehaviour
     void VideoReady()
     {
         print("Video is prepared!!");
+        CreatePopups.popupMsgs.Add("Video is prepared!!");
 
         if (_isClient)
         {
@@ -556,6 +591,7 @@ public class VideoStuff : MonoBehaviour
     void VideoSeekComplete()
     {
         print("Video seek compleated!!");
+        CreatePopups.popupMsgs.Add("Video seek compleated!!");
 
         if (_isClient)
         {
