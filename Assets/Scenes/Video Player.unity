@@ -3219,7 +3219,7 @@ MonoBehaviour:
   port: 5555
   source: 0
   videoURL: https://www12.mp4upload.com:282/d/q6xqbsjvz3b4quuowowryk2sknisf4o6yz7ujpy7bo5yo5m2boag5ybh/video.mp4
-  path: C:/Users/em3/Videos/
-  file: this is fine fire.mp4
+  path: 
+  file: Shrek.mp4
   seekSpeed: 5
   introSkip: 85
