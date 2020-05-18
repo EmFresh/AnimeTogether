@@ -393,7 +393,10 @@ public class VideoStuff : MonoBehaviour
         player.isLooping = false;
         player.source = VideoSource.Url; //I only need this one
         if (source == VideoSource.VideoClip)
+        {
             player.url = path + file;
+            player.Prepare();
+        }
         else
         {
             if (staticVideoURL != "")
@@ -509,8 +512,10 @@ public class VideoStuff : MonoBehaviour
             }
         }
         else if (player.url != path + file)
+        {
             player.url = path + file;
-
+            player.Prepare();
+        }
         //remote controles
         if (player.isPrepared)
             if (stateReceived)
