@@ -22,8 +22,8 @@ public class VideoStuff : MonoBehaviour
     #region Editor
 
     [Foldout("Setable Objects", true)]
-    public VideoPlayer player;
-    public GameObject video;
+    [InitializationField] public VideoPlayer player;
+    [InitializationField] public GameObject video;
 
     [Foldout("Networking Settings", true)]
 
@@ -508,6 +508,8 @@ public class VideoStuff : MonoBehaviour
                 player.Prepare();
             }
         }
+        else if (player.url != path + file)
+            player.url = path + file;
 
         //remote controles
         if (player.isPrepared)
