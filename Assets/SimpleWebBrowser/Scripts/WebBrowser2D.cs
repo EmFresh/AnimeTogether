@@ -42,7 +42,6 @@ namespace SimpleWebBrowser
 
                 if (!readHtml)return;
 
-                
                 readHtml = false;
 
             }
@@ -213,14 +212,20 @@ namespace SimpleWebBrowser
 
                     ScrapingBrowser browser = new ScrapingBrowser();
                     // browser.NavigateToPage();
-                    var browser2 = browser.NavigateToPage(new Uri(url));
+                    var page = browser.NavigateToPage(new Uri(url));
+                    // ScrapySharp.Html.By.Text();
+                    HtmlNode someNode = page.Html.OwnerDocument.GetElementbyId("video");
+                string tmp = page.Html.InnerHtml;
 
-                    var list = browser2.Html.CssSelect("video");
+                var list = page.FindLinks(ScrapySharp.Html.By.Text(".png"));
+                    foreach (HtmlNode link in page.Html.SelectNodes("//a[@href]"))
+                    {
+                        var useit = link;
 
+                    }
                     readHtml = true;
                 }
-                catch (Exception e) 
-                { print(e); }
+                catch (Exception e) { print(e); }
             }
 
             #endregion

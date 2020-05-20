@@ -9,13 +9,9 @@ public class CreatePopups : MonoBehaviour
     public GameObject popupPrefab;
     private GameObject currPopup, inst;
     private List<GameObject> popups = new List<GameObject>();
-    public static IList<string> popupMsgs = new List<string>();
+    private static IList<string> popupMsgs = new List<string>();
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
+    public static void SendPopup(string msg)=> popupMsgs.Add(msg);
 
     // Update is called once per frame
     void Update()
@@ -53,11 +49,11 @@ public class CreatePopups : MonoBehaviour
                     var child = popups[index].transform.GetChild(1);
                     popups[index].transform.GetChild(1).SetParent(popups[index].transform.parent, false);
                     if (child.parent == transform)
-                       child.GetComponent<RectTransform>().anchorMax =
-                       child.GetComponent<RectTransform>().anchorMin =
+                        child.GetComponent<RectTransform>().anchorMax =
+                        child.GetComponent<RectTransform>().anchorMin =
                         new Vector2(.5f, 1);
 
-                  child.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+                    child.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
                 }
                 Destroy(popups[index]);
                 //popups[index] = null;

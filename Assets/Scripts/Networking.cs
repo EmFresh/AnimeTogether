@@ -126,7 +126,7 @@ public class Networking
     {
         shutdownNetwork();
 
-        networkWaitForSeconds(0.5f);//to allow any process to finish 
+        networkWaitForSeconds(0.5f); //to allow any process to finish 
         if (_pluginHandle != IntPtr.Zero)
             ManualPluginImporter.CloseLibrary(_pluginHandle);
     }
@@ -141,6 +141,10 @@ public class Networking
     {
         for (var waiting = DateTime.Now; DateTime.Now.Subtract(waiting).TotalSeconds >= sec;);
     }
+
+    [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+    public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+
     #endregion 
     //ERROR//
 
@@ -366,7 +370,7 @@ public class Networking
     {
         numberOfBytes = numberOfBytes >= 0 ? numberOfBytes : Marshal.SizeOf<T>();
 
-      //  Debug.Log("number of bytes: " + numberOfBytes.ToString());
+        //  Debug.Log("number of bytes: " + numberOfBytes.ToString());
 
         IntPtr tmp = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
         Marshal.StructureToPtr(data, tmp, true);
@@ -384,7 +388,7 @@ public class Networking
     {
         numberOfBytes = numberOfBytes >= 0 ? numberOfBytes : data.Length + 1;
 
-    //    Debug.Log("number of bytes: " + numberOfBytes.ToString());
+        //    Debug.Log("number of bytes: " + numberOfBytes.ToString());
         IntPtr tmp = Marshal.StringToHGlobalAnsi(data);
         PResult res = sendAllPacketData(in soc, tmp, numberOfBytes);
 
@@ -396,6 +400,15 @@ public class Networking
     ///<summary>
     ///Receive entire packet over TCP server. guaranteed to recieve all bytes.
     ///</summary>
+    public static PResult recvAllPacket(in SocketData soc, ref IntPtr dest, int offset = 0, int numberOfBytes = 0)
+    {
+        return recvAllPacketData(in soc, dest + offset, numberOfBytes);
+        //        Debug.Log("number of bytes: " + numberOfBytes.ToString());
+
+    }
+    ///<summary>
+    ///Receive entire packet over TCP server. guaranteed to recieve all bytes.
+    ///</summary>
     public static PResult recvAllPacket<T>(in SocketData soc, out T dest, int numberOfBytes = -1)
     {
 
@@ -404,12 +417,12 @@ public class Networking
         IntPtr tmp = Marshal.AllocHGlobal(numberOfBytes);
         //Marshal.StructureToPtr(dest, tmp, true);
         PResult res = recvAllPacketData(in soc, tmp, numberOfBytes);
-//        Debug.Log("number of bytes: " + numberOfBytes.ToString());
+        //        Debug.Log("number of bytes: " + numberOfBytes.ToString());
 
         dest = default(T);
         if (res == PResult.P_Success)
         {
-       //     Debug.Log("number of bytes: " + numberOfBytes.ToString());
+            //     Debug.Log("number of bytes: " + numberOfBytes.ToString());
             dest = Marshal.PtrToStructure<T>(tmp);
         }
         Marshal.FreeHGlobal(tmp);
@@ -427,7 +440,7 @@ public class Networking
         dest = "";
         if (res == PResult.P_Success)
         {
-  //          Debug.Log("number of bytes: " + numberOfBytes.ToString());
+            //          Debug.Log("number of bytes: " + numberOfBytes.ToString());
             dest = Marshal.PtrToStringAnsi(tmp);
         }
         Marshal.FreeHGlobal(tmp);
