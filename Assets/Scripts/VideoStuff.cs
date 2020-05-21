@@ -182,8 +182,8 @@ public class VideoStuff : MonoBehaviour
                 Unknown theurl = new Unknown();
                 IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
                 Marshal.StructureToPtr(theurl, tmp, true);
-                var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, 255));
-                CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, 255).Length);
+                var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255));
+                CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255).Length);
                 Marshal.PtrToStructure(tmp, theurl);
                 Marshal.FreeHGlobal(tmp);
                 Marshal.FreeHGlobal(pTmpStr);
@@ -251,12 +251,16 @@ public class VideoStuff : MonoBehaviour
                                 break;
 
                             default:
-                                //TODO: receive video url string from host
-                                string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
-                                Marshal.FreeHGlobal(tmp);
+                                try
+                                {
 
-                                if (url.Contains("https://") || url.Contains("http://"))
-                                    staticVideoURL = url;
+                                    string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
+                                    Marshal.FreeHGlobal(tmp);
+
+                                    if (url.Contains("https://") || url.Contains("http://"))
+                                        staticVideoURL = url;
+                                }
+                                catch {}
                                 break;
                         }
                     }
@@ -286,7 +290,7 @@ public class VideoStuff : MonoBehaviour
                                 for (int index2 = index; index2 < connections.Count; index2++)
                                 {
                                     size = Marshal.SizeOf<ClientIndex>();
-                                    sendAllPacket(connections[index2].soc, size);
+                                    //  sendAllPacket(connections[index2].soc, size);
                                     if (sendAllPacket(connections[index2].soc, new ClientIndex((short)index2)) == PResult.P_UnknownError)
                                         PrintError(err = getLastNetworkError());
                                 }
@@ -301,7 +305,7 @@ public class VideoStuff : MonoBehaviour
                         unknown = Marshal.AllocHGlobal(size);
                         Marshal.StructureToPtr(size, unknown, true);
 
-                        if (recvAllPacket(soc, ref unknown, 4, size - 4) == PResult.P_Success)
+                        if (recvAllPacket(connections[index].soc, ref unknown, 4, size - 4) == PResult.P_Success)
                         {
                             print("Received Packet!");
                             switch (Marshal.PtrToStructure<Unknown>(unknown).type)
@@ -479,15 +483,15 @@ public class VideoStuff : MonoBehaviour
                         updateState();
 
                         int size = Marshal.SizeOf<PlayerState>();
-                        sendAllPacket(connect.soc, size);
+                        //  sendAllPacket(connect.soc, size);
                         if (sendAllPacket(connect.soc, state) == PResult.P_UnknownError)
                             PrintError(err = getLastNetworkError());
 
                         Unknown theurl = new Unknown();
                         IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
                         Marshal.StructureToPtr(theurl, tmp, true);
-                        var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, 255));
-                        CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, 255).Length);
+                        var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255));
+                        CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255).Length);
                         Marshal.PtrToStructure(tmp, theurl);
                         Marshal.FreeHGlobal(tmp);
                         Marshal.FreeHGlobal(pTmpStr);
