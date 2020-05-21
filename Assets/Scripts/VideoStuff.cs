@@ -532,7 +532,7 @@ public class VideoStuff : MonoBehaviour
                     int size = Marshal.SizeOf<PlayerState>();
                     for (int index = 0; index < connections.Count; index++)
                     {
-                        sendAllPacket(connections[index].soc, size);
+                        //           sendAllPacket(connections[index].soc, size);
                         sendAllPacket(connections[index].soc, state, size);
                     }
                 }
@@ -587,9 +587,8 @@ public class VideoStuff : MonoBehaviour
         {
 
             ClientPrepared tmp = new ClientPrepared();
-            tmp.index = index;
             tmp.playerReady = true;
-            sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
+            //   sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
             sendAllPacket(soc, tmp);
         }
         isPrepared = true;
@@ -604,7 +603,7 @@ public class VideoStuff : MonoBehaviour
         {
             ClientPrepared tmp = new ClientPrepared();
             tmp.playerReady = true;
-            sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
+            //    sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
             sendAllPacket(soc, tmp);
         }
         isPrepared = true;
@@ -629,16 +628,14 @@ public class VideoStuff : MonoBehaviour
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
-            sendAllPacket(soc, size);
+            //    sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
     }
     public void skipIntro()
     {
         if (!_isClient)
-        {
             stateReceived = true;
-        }
 
         updateState();
         state.pos = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
@@ -646,23 +643,22 @@ public class VideoStuff : MonoBehaviour
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
-            sendAllPacket(soc, size);
+            //     sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
     }
     public void seekL()
     {
         if (!_isClient)
-        {
             stateReceived = true;
-        }
+
         updateState();
         state.seek = true;
         state.pos = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
-            sendAllPacket(soc, size);
+            //  sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
 
@@ -671,16 +667,15 @@ public class VideoStuff : MonoBehaviour
     {
 
         if (!_isClient)
-        {
             stateReceived = true;
-        }
+
         updateState();
         state.seek = true;
         state.pos = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)
         {
-            sendAllPacket(soc, size);
+            //sendAllPacket(soc, size);
             sendAllPacket(soc, state);
         }
     }
