@@ -7,8 +7,11 @@ public  class SceneSwitch : MonoBehaviour
 {
    public  void SwitchScene(string scene)
    {
-//        SceneManager.UnloadSceneAsync("Video Player");
+        if(VideoStuff.isClient != InitSettings.isClient)
+            VideoStuff.shutdownJobs();
+        //        SceneManager.UnloadSceneAsync("Video Player");
         SceneManager.LoadScene(scene, LoadSceneMode.Single);
+
  //      while( SceneManager.SetActiveScene(SceneManager.GetSceneByName("Video Player")));
     }
 }

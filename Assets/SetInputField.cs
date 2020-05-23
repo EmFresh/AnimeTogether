@@ -16,6 +16,8 @@ public static class clip
         CreatePopups.SendPopup("Copied to clipboard");
     }
 }
+
+[RequireComponent(typeof(TMP_InputField))]
 public class SetInputField : MonoBehaviour
 {
     static string tmp;
@@ -52,5 +54,22 @@ public class SetInputField : MonoBehaviour
         {
             GetComponent<TMP_InputField>().text = tmp;
         }
+    }
+
+    /// <summary>
+    /// Callback sent to all game objects before the application is quit.
+    /// </summary>
+    void OnApplicationQuit()
+    {
+        GetComponent<TMP_InputField>().text = "";
+    }
+
+    /// <summary>
+    /// This function is called when the MonoBehaviour will be destroyed.
+    /// </summary>
+    void OnDestroy()
+    {
+            GetComponent<TMP_InputField>().text = "";
+   
     }
 }

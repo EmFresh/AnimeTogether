@@ -8,15 +8,16 @@ using UnityEngine.Video;
 public class InitSettings : MonoBehaviour
 {
 
-    [MustBeAssigned] public TMP_InputField ipAddressUI, portUI, videoURLUI, pathUI, fileUI;
-
-   public void Awake()
+    public void Awake()
     {
-        IPAddress(ipAddressUI.text);
-        Port(portUI.text);
-        VideoURL(videoURLUI.text);
-        Path(pathUI.text);
-        File(fileUI.text);
+        IsClient(false);
+        IsIPv6(false);
+       // IPAddress(MyNetworking.GetPublicIPAddress());
+        Port("5555");
+        Source(0);
+        VideoURL("");
+        Path("");
+        File("");
     }
     public static bool isClient = false;
     public static bool isIPv6 = false;
@@ -24,7 +25,7 @@ public class InitSettings : MonoBehaviour
     public static string ipAddress;
     public static ushort port;
 
-    public static VideoSource source=VideoSource.Url;
+    public static VideoSource source = VideoSource.Url;
 
     public static string videoURL;
     public static string path;

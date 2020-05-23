@@ -24,13 +24,14 @@ public class VideoStuff : MonoBehaviour
     [Foldout("Setable Objects", true)]
     [InitializationField]
     public VideoPlayer player;
+
     [InitializationField]
     public GameObject video;
 
     [Foldout("Networking Settings", true)]
 
-    public bool isClient;
-    private static bool _isClient;
+    // public bool isClient;
+    public static bool isClient;
     public bool isIPv6;
 
     [ConditionalField("isClient")]
@@ -218,7 +219,7 @@ public class VideoStuff : MonoBehaviour
             while (true)
             {
                 //unknown = new Unknown();
-                if (_isClient)
+                if (isClient)
                 {
                     //prevent unknown data collection
                     if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
@@ -390,9 +391,8 @@ public class VideoStuff : MonoBehaviour
 
         setVideoVariables();
 
-        _isClient = isClient;
         state = new PlayerState();
-        if (!_isClient)
+        if (!isClient)
             staticVideoURL = videoURL;
         else
             videoURL = staticVideoURL;
@@ -410,6 +410,7 @@ public class VideoStuff : MonoBehaviour
         player.playOnAwake = false;
         player.isLooping = false;
         player.source = VideoSource.Url; //I only need this one
+        
         if (source == VideoSource.VideoClip)
         {
             player.url = path + file;
@@ -428,16 +429,18 @@ public class VideoStuff : MonoBehaviour
         // player.frameDropped;
         //player.frameReady;
 
-        if (!_isClient) //server
+        if (!isClient) //server
             if (staticVideoURL != "")
                 player.Prepare();
 
-        if (!isClient && isNetworkInit)return;
+        if (isNetworkInit){
+            CreatePopups.SendPopup("Network already initialized");
+            return;}
 
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(_isClient? ipAddress: "", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(isClient? ipAddress: "", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         string err;
 
@@ -449,7 +452,7 @@ public class VideoStuff : MonoBehaviour
 
             return;
         }
-        if (!_isClient) //server
+        if (!isClient) //server
         {
             if (listenEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
@@ -496,14 +499,13 @@ public class VideoStuff : MonoBehaviour
 
     void Update()
     {
-        _isClient = isClient;
 
         string err;
 
         //receiving video url
         if (source == VideoSource.Url)
         {
-            if (!_isClient) //server
+            if (!isClient) //server
             {
                 if (staticVideoURL != videoURL)
                     foreach (var connect in connections)
@@ -553,7 +555,7 @@ public class VideoStuff : MonoBehaviour
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
 
-                if (!_isClient) //server
+                if (!isClient) //server
                 {
                     // bool cont = true;
                     // for (int index = 0; index < connections.Count; ++index)
@@ -616,7 +618,7 @@ public class VideoStuff : MonoBehaviour
         print("Video is prepared!!");
         CreatePopups.SendPopup("Video is prepared!!");
 
-        if (_isClient)
+        if (isClient)
         {
 
             ClientPrepared tmp = new ClientPrepared();
@@ -632,7 +634,7 @@ public class VideoStuff : MonoBehaviour
         print("Video seek compleated!!");
         CreatePopups.SendPopup("Video seek compleated!!");
 
-        if (_isClient)
+        if (isClient)
         {
             ClientPrepared tmp = new ClientPrepared();
             tmp.playerReady = true;
@@ -653,13 +655,13 @@ public class VideoStuff : MonoBehaviour
     public void playNPause()
     {
 
-        if (!_isClient)
+        if (!isClient)
             stateReceived = true;
 
         updateState();
         state.isPaused = !state.isPaused;
         int size = Marshal.SizeOf<PlayerState>();
-        if (_isClient)
+        if (isClient)
         {
             //    sendAllPacket(soc, size);
             sendAllPacket(soc, state);
@@ -667,14 +669,14 @@ public class VideoStuff : MonoBehaviour
     }
     public void skipIntro()
     {
-        if (!_isClient)
+        if (!isClient)
             stateReceived = true;
 
         updateState();
         state.pos = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
         state.seek = true;
         int size = Marshal.SizeOf<PlayerState>();
-        if (_isClient)
+        if (isClient)
         {
             //     sendAllPacket(soc, size);
             sendAllPacket(soc, state);
@@ -682,14 +684,14 @@ public class VideoStuff : MonoBehaviour
     }
     public void unskipIntro()
     {
-        if (!_isClient)
+        if (!isClient)
             stateReceived = true;
 
         updateState();
         state.pos = Mathf.Clamp((float)player.time - introSkip, 0, (float)player.length);
         state.seek = true;
         int size = Marshal.SizeOf<PlayerState>();
-        if (_isClient)
+        if (isClient)
         {
             //     sendAllPacket(soc, size);
             sendAllPacket(soc, state);
@@ -697,14 +699,14 @@ public class VideoStuff : MonoBehaviour
     }
     public void seekL()
     {
-        if (!_isClient)
+        if (!isClient)
             stateReceived = true;
 
         updateState();
         state.seek = true;
         state.pos = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
-        if (_isClient)
+        if (isClient)
         {
             //  sendAllPacket(soc, size);
             sendAllPacket(soc, state);
@@ -714,14 +716,14 @@ public class VideoStuff : MonoBehaviour
     public void seekR()
     {
 
-        if (!_isClient)
+        if (!isClient)
             stateReceived = true;
 
         updateState();
         state.seek = true;
         state.pos = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
-        if (_isClient)
+        if (isClient)
         {
             //sendAllPacket(soc, size);
             sendAllPacket(soc, state);
@@ -744,8 +746,7 @@ public class VideoStuff : MonoBehaviour
             player.SetDirectAudioMute(a, !player.GetDirectAudioMute(a));
     }
 
-    // Callback sent to all game objects before the application is quit.
-    void OnApplicationQuit()
+    public static void shutdownJobs()
     {
         closeNetwork = true;
         if (isNetworkInit)
@@ -763,6 +764,11 @@ public class VideoStuff : MonoBehaviour
             hndReceive.Complete();
             hndAccept.Complete();
         }
+    }
+    // Callback sent to all game objects before the application is quit.
+    void OnApplicationQuit()
+    {
+        shutdownJobs();
 
         closeNetworkPlugin();
     }
