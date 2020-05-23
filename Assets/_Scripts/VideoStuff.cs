@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using HtmlAgilityPack;
-//using MyBox;
+using MyBox;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEditor;
@@ -12,7 +12,7 @@ using UnityEngine.Audio;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
-using static Networking;
+using static MyNetworking;
 
 [RequireComponent(typeof(VideoPlayer))]
 public class VideoStuff : MonoBehaviour
@@ -21,31 +21,32 @@ public class VideoStuff : MonoBehaviour
 
     #region Editor
 
-    /*[Foldout("Setable Objects", true)]
-    [InitializationField]*/
+    [Foldout("Setable Objects", true)]
+    [InitializationField]
     public VideoPlayer player;
-    /* [InitializationField] */
+    [InitializationField]
     public GameObject video;
 
-    /*  [Foldout("Networking Settings", true)]*/
+    [Foldout("Networking Settings", true)]
 
     public bool isClient;
     private static bool _isClient;
     public bool isIPv6;
 
+    [ConditionalField("isClient")]
     public string ipAddress;
     public ushort port;
 
-    /* [Foldout("Video Settings", true)]*/
+    [Foldout("Video Settings", true)]
 
     public VideoSource source;
 
-    /*  [ConditionalField("source", false, VideoSource.Url)] */
+    [ConditionalField("source", false, VideoSource.Url)]
     public string videoURL;
 
-    /*[ConditionalField("source", false, VideoSource.VideoClip)] */
+    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string path;
-    /*  [ConditionalField("source", false, VideoSource.VideoClip)] */
+    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string file;
     public static string staticVideoURL;
     [Tooltip("Set seek speed in seconds")]
@@ -71,9 +72,9 @@ public class VideoStuff : MonoBehaviour
     #endregion
 
     #region Jobs 
-    AcceptNetworkJob jobAccept;
-    ReceiveNetworkJob jobReceive;
-    JobHandle hndAccept, hndReceive;
+    static AcceptNetworkJob jobAccept;
+    static ReceiveNetworkJob jobReceive;
+    static JobHandle hndAccept, hndReceive;
 
     public enum MessageType : int
     {
@@ -165,11 +166,14 @@ public class VideoStuff : MonoBehaviour
                 IPEndpointData connectIP = new IPEndpointData();
                 if (acceptSocket.Invoke(socket, connect, connectIP) == PResult.P_UnknownError) //check
                 {
-                    PrintError(err = getLastNetworkError());
-                    CreatePopups.SendPopup(err);
-                    if (closeNetwork)
+                    if (!closeNetwork)
+                    {
+                        PrintError(err = getLastNetworkError());
+                        CreatePopups.SendPopup(err);
+                        continue;
+                    }
+                    else
                         break;
-                    continue;
                 }
 
                 connections.Add(new Client());
@@ -265,6 +269,7 @@ public class VideoStuff : MonoBehaviour
                         }
                     }
                     else
+                    if (!closeNetwork)
                         PrintError(err = getLastNetworkError());
 
                     Marshal.FreeHGlobal(unknown);
@@ -348,7 +353,7 @@ public class VideoStuff : MonoBehaviour
                             if (closeNetwork)
                                 break;
                         }
-                        else
+                        else if (!closeNetwork)
                             PrintError(err = getLastNetworkError());
 
                         if (closeNetwork)
@@ -365,8 +370,26 @@ public class VideoStuff : MonoBehaviour
 
     #endregion
 
+    void setVideoVariables()
+    {
+        isClient = InitSettings.isClient;
+        isIPv6 = InitSettings.isIPv6;
+
+        ipAddress = InitSettings.ipAddress;
+        port = InitSettings.port;
+
+        source = InitSettings.source;
+
+        videoURL = InitSettings.videoURL;
+        path = InitSettings.path;
+        file = InitSettings.file;
+    }
+
     void Awake()
     {
+
+        setVideoVariables();
+
         _isClient = isClient;
         state = new PlayerState();
         if (!_isClient)
@@ -409,16 +432,21 @@ public class VideoStuff : MonoBehaviour
             if (staticVideoURL != "")
                 player.Prepare();
 
+        if (!isClient && isNetworkInit)return;
+
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(ipAddress, (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(_isClient? ipAddress: "", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         string err;
 
         if (initSocket.Invoke(soc) == PResult.P_UnknownError)
         {
             PrintError(err = getLastNetworkError());
+            if (!shutdownNetwork())
+                PrintError(err = getLastNetworkError());
+
             return;
         }
         if (!_isClient) //server
@@ -446,6 +474,7 @@ public class VideoStuff : MonoBehaviour
         {
             if (connectEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
+                if (isNetworkInit)return;
                 jobReceive = new ReceiveNetworkJob();
                 hndReceive = jobReceive.Schedule();
                 print(err = "connected to host");
@@ -643,6 +672,21 @@ public class VideoStuff : MonoBehaviour
 
         updateState();
         state.pos = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
+        state.seek = true;
+        int size = Marshal.SizeOf<PlayerState>();
+        if (_isClient)
+        {
+            //     sendAllPacket(soc, size);
+            sendAllPacket(soc, state);
+        }
+    }
+    public void unskipIntro()
+    {
+        if (!_isClient)
+            stateReceived = true;
+
+        updateState();
+        state.pos = Mathf.Clamp((float)player.time - introSkip, 0, (float)player.length);
         state.seek = true;
         int size = Marshal.SizeOf<PlayerState>();
         if (_isClient)

@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6265c1b5fc065e40be0606a1e730e79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enablefadeIn: 0
+  enableFadeIn: 0
   delay: 1.5
   fadeoutTime: 0.5
   fadeinTime: 0
@@ -275,3 +275,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 7244205696581960231}
+  offset: {x: 0, y: 0}

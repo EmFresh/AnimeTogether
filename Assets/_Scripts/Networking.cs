@@ -1,10 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-public class Networking
+public static class MyNetworking
 {
     #region Enums
     public enum IPVersion : int
@@ -145,6 +147,23 @@ public class Networking
     [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
     public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
 
+    //code from: https://www.c-sharpcorner.com/blogs/how-to-get-public-ip-address-using-c-sharp1
+    public static string GetPublicIPAddress()
+    {
+        String address = "";
+        WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
+        using(WebResponse response = request.GetResponse())
+        using(StreamReader stream = new StreamReader(response.GetResponseStream()))
+        {
+            address = stream.ReadToEnd();
+        }
+
+        int first = address.IndexOf("Address: ") + 9;
+        int last = address.LastIndexOf("</body>");
+        address = address.Substring(first, last - first);
+
+        return address;
+    }
     #endregion 
     //ERROR//
 

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class FadeInOut : MonoBehaviour
 {
-    public bool enablefadeIn = true;
+    public bool enableFadeIn = true;
     public float delay, fadeoutTime, fadeinTime;
     float currentTime = 0, fadeTime = 1;
     bool isFadeOut = true;
@@ -20,7 +20,7 @@ public class FadeInOut : MonoBehaviour
     {
         controls = new Controls();
 
-        if (enablefadeIn)
+        if (enableFadeIn)
             controls.VideoPlayer.MouseInteract.performed += ctx => fadeInInvoke();
     }
     void OnEnable() => controls.VideoPlayer.Enable();

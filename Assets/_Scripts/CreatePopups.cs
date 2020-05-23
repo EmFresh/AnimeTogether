@@ -7,11 +7,12 @@ using static VideoStuff;
 public class CreatePopups : MonoBehaviour
 {
     public GameObject popupPrefab;
+    public float delay, fadeoutTime;
     private GameObject currPopup, inst;
     private List<GameObject> popups = new List<GameObject>();
     private static IList<string> popupMsgs = new List<string>();
 
-    public static void SendPopup(string msg)=> popupMsgs.Add(msg);
+    public static void SendPopup(string msg) => popupMsgs.Add(msg);
 
     // Update is called once per frame
     void Update()
@@ -19,6 +20,8 @@ public class CreatePopups : MonoBehaviour
         while (popupMsgs.Count > 0)
         {
             inst = Instantiate(popupPrefab, inst == null ? transform : currPopup.transform, false);
+            inst.GetComponent<FadeInOut>().delay = delay;
+            inst.GetComponent<FadeInOut>().fadeoutTime = fadeoutTime;
 
             inst.GetComponentInChildren<TextMeshProUGUI>().text = popupMsgs[0];
 

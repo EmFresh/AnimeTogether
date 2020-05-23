@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Text;
-//using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using HtmlAgilityPack;
+using Jsbeautifier;
 using MessageLibrary;
 using ScrapySharp.Extensions;
 using ScrapySharp.Network;
@@ -13,6 +13,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+//using System.Diagnostics;
 
 namespace SimpleWebBrowser
 {
@@ -207,25 +208,28 @@ namespace SimpleWebBrowser
                 _setUrl = true;
                 _setUrlString = url;
 
-                try
-                {
-
-                    ScrapingBrowser browser = new ScrapingBrowser();
-                    // browser.NavigateToPage();
-                    var page = browser.NavigateToPage(new Uri(url));
-                    // ScrapySharp.Html.By.Text();
-                    HtmlNode someNode = page.Html.OwnerDocument.GetElementbyId("video");
-                string tmp = page.Html.InnerHtml;
-
-                var list = page.FindLinks(ScrapySharp.Html.By.Text(".png"));
-                    foreach (HtmlNode link in page.Html.SelectNodes("//a[@href]"))
-                    {
-                        var useit = link;
-
-                    }
-                    readHtml = true;
-                }
-                catch (Exception e) { print(e); }
+                //try
+                //{
+//
+                //    ScrapingBrowser browser = new ScrapingBrowser();
+                //    // browser.NavigateToPage();
+                //    var page = browser.NavigateToPage(new Uri(url));
+                //    // ScrapySharp.Html.By.Text();
+                //    string tmp = page.Html.OuterHtml;
+                //    var beauty = new Beautifier();
+//
+                //    tmp = beauty.Beautify(tmp);
+                //    HtmlDocument doc = new HtmlDocument();
+                //    //doc.LoadHtml(tmp);
+//
+                //    foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//iframe"))
+                //    {
+                //        var useit = link;
+//
+                //    }
+                //    readHtml = true;
+                //}
+                //catch (Exception e) { print(e); }
             }
 
             #endregion
