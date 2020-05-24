@@ -8,28 +8,28 @@ using UnityEngine.Video;
 public class InitSettings : MonoBehaviour
 {
 
-    public void Awake()
-    {
-        IsClient(false);
-        IsIPv6(false);
-        // IPAddress(MyNetworking.GetPublicIPAddress());
-        Port("5555");
-        Source(0);
-        VideoURL("");
-        Path("");
-        File("");
-    }
     public static bool isClient = false;
     public static bool isIPv6 = false;
 
     public static string ipAddress = "";
-    public static ushort port;
+    public static ushort port = 5555;
 
     public static VideoSource source = VideoSource.Url;
 
     public static string videoURL = "";
     public static string path = "";
     public static string file = "";
+    public void Awake()
+    {
+        IsClient(isClient);
+        IsIPv6(isIPv6);
+        // IPAddress(MyNetworking.GetPublicIPAddress());
+        Port(port.ToString());
+        Source((int)source);
+        VideoURL(videoURL);
+        Path(path);
+        File(file);
+    }
 
     public void IsClient(bool enable) =>
         isClient = enable;
@@ -37,18 +37,10 @@ public class InitSettings : MonoBehaviour
 
     public void IPAddress(string str) => ipAddress = isClient ? str : "";
     public void Port(string num) => port = ushort.Parse(num);
-    public void Source(int val)
-    {
-        switch (val)
-        {
-            case 0: //Url
-                source = VideoSource.Url;
-                break;
-            case 1: //video clip
-                source = VideoSource.VideoClip;
-                break;
-        }
-    }
+    public void Source(int val)=>
+        source = (VideoSource)val;
+
+    
 
     public void VideoURL(string str) => videoURL = str == null? "": str;
     public void Path(string str) => path = str == null? "": str;
