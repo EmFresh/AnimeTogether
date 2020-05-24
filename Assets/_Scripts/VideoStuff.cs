@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using HtmlAgilityPack;
-using MyBox;
+//using MyBox;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEditor;
@@ -21,33 +21,33 @@ public class VideoStuff : MonoBehaviour
 
     #region Editor
 
-    [Foldout("Setable Objects", true)]
-    [InitializationField]
+ //   [Foldout("Setable Objects", true)]
+ //   [InitializationField]
     public VideoPlayer player;
 
-    [InitializationField]
+//    [InitializationField]
     public GameObject video;
 
-    [Foldout("Networking Settings", true)]
+//    [Foldout("Networking Settings", true)]
 
     // public bool isClient;
     public static bool isClient;
     public bool isIPv6;
 
-    [ConditionalField("isClient")]
+//    [ConditionalField("isClient")]
     public string ipAddress;
     public ushort port;
 
-    [Foldout("Video Settings", true)]
+//    [Foldout("Video Settings", true)]
 
     public VideoSource source;
 
-    [ConditionalField("source", false, VideoSource.Url)]
+//    [ConditionalField("source", false, VideoSource.Url)]
     public string videoURL;
 
-    [ConditionalField("source", false, VideoSource.VideoClip)]
+//    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string path;
-    [ConditionalField("source", false, VideoSource.VideoClip)]
+//    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string file;
     public static string staticVideoURL;
     [Tooltip("Set seek speed in seconds")]
@@ -392,10 +392,7 @@ public class VideoStuff : MonoBehaviour
         setVideoVariables();
 
         state = new PlayerState();
-        if (!isClient)
-            staticVideoURL = videoURL;
-        else
-            videoURL = staticVideoURL;
+        staticVideoURL = videoURL;
 
         //Setup controls
         controls = new Controls();
@@ -410,7 +407,7 @@ public class VideoStuff : MonoBehaviour
         player.playOnAwake = false;
         player.isLooping = false;
         player.source = VideoSource.Url; //I only need this one
-        
+
         if (source == VideoSource.VideoClip)
         {
             player.url = path + file;
@@ -433,9 +430,11 @@ public class VideoStuff : MonoBehaviour
             if (staticVideoURL != "")
                 player.Prepare();
 
-        if (isNetworkInit){
+        if (isNetworkInit)
+        {
             CreatePopups.SendPopup("Network already initialized");
-            return;}
+            return;
+        }
 
         initNetworkPlugin();
         initNetwork();
@@ -533,14 +532,15 @@ public class VideoStuff : MonoBehaviour
                         player.Prepare();
                     }
             }
-            else if (staticVideoURL != videoURL)
+            else//client 
+            if (staticVideoURL != videoURL)
             {
                 print(err = "received new URL");
                 CreatePopups.SendPopup(err);
 
                 videoURL = staticVideoURL;
-                player.Stop();
                 player.url = staticVideoURL;
+                player.Stop();
                 player.Prepare();
             }
         }
@@ -549,6 +549,7 @@ public class VideoStuff : MonoBehaviour
             player.url = path + file;
             player.Prepare();
         }
+       
         //remote controles
         if (player.isPrepared)
             if (stateReceived)
@@ -764,6 +765,7 @@ public class VideoStuff : MonoBehaviour
             hndReceive.Complete();
             hndAccept.Complete();
         }
+        closeNetwork = false;
     }
     // Callback sent to all game objects before the application is quit.
     void OnApplicationQuit()
