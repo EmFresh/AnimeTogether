@@ -21,33 +21,33 @@ public class VideoStuff : MonoBehaviour
 
     #region Editor
 
- //   [Foldout("Setable Objects", true)]
- //   [InitializationField]
+    //   [Foldout("Setable Objects", true)]
+    //   [InitializationField]
     public VideoPlayer player;
 
-//    [InitializationField]
+    //    [InitializationField]
     public GameObject video;
 
-//    [Foldout("Networking Settings", true)]
+    //    [Foldout("Networking Settings", true)]
 
     // public bool isClient;
     public static bool isClient;
     public bool isIPv6;
 
-//    [ConditionalField("isClient")]
+    //    [ConditionalField("isClient")]
     public string ipAddress;
     public ushort port;
 
-//    [Foldout("Video Settings", true)]
+    //    [Foldout("Video Settings", true)]
 
     public VideoSource source;
 
-//    [ConditionalField("source", false, VideoSource.Url)]
+    //    [ConditionalField("source", false, VideoSource.Url)]
     public string videoURL;
 
-//    [ConditionalField("source", false, VideoSource.VideoClip)]
+    //    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string path;
-//    [ConditionalField("source", false, VideoSource.VideoClip)]
+    //    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string file;
     public static string staticVideoURL;
     [Tooltip("Set seek speed in seconds")]
@@ -476,7 +476,6 @@ public class VideoStuff : MonoBehaviour
         {
             if (connectEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
-                if (isNetworkInit)return;
                 jobReceive = new ReceiveNetworkJob();
                 hndReceive = jobReceive.Schedule();
                 print(err = "connected to host");
@@ -532,24 +531,24 @@ public class VideoStuff : MonoBehaviour
                         player.Prepare();
                     }
             }
-            else//client 
-            if (staticVideoURL != videoURL)
-            {
-                print(err = "received new URL");
-                CreatePopups.SendPopup(err);
+            else //client 
+                if (staticVideoURL != videoURL)
+                {
+                    print(err = "received new URL");
+                    CreatePopups.SendPopup(err);
 
-                videoURL = staticVideoURL;
-                player.url = staticVideoURL;
-                player.Stop();
-                player.Prepare();
-            }
+                    videoURL = staticVideoURL;
+                    player.url = staticVideoURL;
+                    player.Stop();
+                    player.Prepare();
+                }
         }
         else if (player.url != path + file)
         {
             player.url = path + file;
             player.Prepare();
         }
-       
+
         //remote controles
         if (player.isPrepared)
             if (stateReceived)
