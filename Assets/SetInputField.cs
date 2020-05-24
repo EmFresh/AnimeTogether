@@ -20,7 +20,7 @@ public static class clip
 [RequireComponent(typeof(TMP_InputField))]
 public class SetInputField : MonoBehaviour
 {
-    static string tmp;
+    static string tmp="";
 
     void Awake()
     {
@@ -48,6 +48,7 @@ public class SetInputField : MonoBehaviour
         if (!set)
         {
             tmp = GetComponent<TMP_InputField>().text;
+            tmp = tmp == null ? "" : tmp;
             GetComponent<TMP_InputField>().text = GetPublicIPAddress();
         }
         else

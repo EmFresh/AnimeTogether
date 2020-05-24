@@ -12,7 +12,7 @@ public class InitSettings : MonoBehaviour
     {
         IsClient(false);
         IsIPv6(false);
-       // IPAddress(MyNetworking.GetPublicIPAddress());
+        // IPAddress(MyNetworking.GetPublicIPAddress());
         Port("5555");
         Source(0);
         VideoURL("");
@@ -22,19 +22,20 @@ public class InitSettings : MonoBehaviour
     public static bool isClient = false;
     public static bool isIPv6 = false;
 
-    public static string ipAddress;
+    public static string ipAddress = "";
     public static ushort port;
 
     public static VideoSource source = VideoSource.Url;
 
-    public static string videoURL;
-    public static string path;
-    public static string file;
+    public static string videoURL = "";
+    public static string path = "";
+    public static string file = "";
 
-    public void IsClient(bool enable) => isClient = enable;
+    public void IsClient(bool enable) =>
+        isClient = enable;
     public void IsIPv6(bool enable) => isIPv6 = enable;
 
-    public void IPAddress(string str) => ipAddress = str;
+    public void IPAddress(string str) => ipAddress = isClient ? str : "";
     public void Port(string num) => port = ushort.Parse(num);
     public void Source(int val)
     {
@@ -49,8 +50,8 @@ public class InitSettings : MonoBehaviour
         }
     }
 
-    public void VideoURL(string str) => videoURL = str;
-    public void Path(string str) => path = str;
-    public void File(string str) => file = str;
+    public void VideoURL(string str) => videoURL = str == null? "": str;
+    public void Path(string str) => path = str == null? "": str;
+    public void File(string str) => file = str == null? "": str;
 
 }
