@@ -1921,6 +1921,7 @@ GameObject:
   - component: {fileID: 844085288}
   - component: {fileID: 844085287}
   - component: {fileID: 844085286}
+  - component: {fileID: 844085289}
   m_Layer: 0
   m_Name: Video Source
   m_TagString: Untagged
@@ -2086,6 +2087,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 844085284}
   m_CullTransparentMesh: 0
+--- !u!114 &844085289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 844085284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98ac8ff05345e724085cf472188d3fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isClient: {fileID: 1411408014}
+  videoUrl: {fileID: 2098962893}
 --- !u!1 &899177326
 GameObject:
   m_ObjectHideFlags: 0
@@ -2914,7 +2929,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 857b59729cdce3145ba8dec28fbf9061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVal: 1
+  enableVal: 0
 --- !u!1 &1125809716
 GameObject:
   m_ObjectHideFlags: 0
@@ -4137,8 +4152,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2098962893}
-        m_MethodName: SetActive
+      - m_Target: {fileID: 2098962898}
+        m_MethodName: ToggleObjectNot
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5789,7 +5804,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 857b59729cdce3145ba8dec28fbf9061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVal: 1
+  enableVal: 0
 --- !u!1001 &2087894197
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6121,4 +6136,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 857b59729cdce3145ba8dec28fbf9061, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVal: 0
+  enableVal: 1

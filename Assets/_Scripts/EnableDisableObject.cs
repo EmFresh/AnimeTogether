@@ -13,4 +13,14 @@ public class EnableDisableObject : MonoBehaviour
         else
             gameObject.SetActive(false);
     }
+    public void ToggleObjectNot(bool val)
+    {
+        if (!val)
+            gameObject.SetActive(true);
+        else
+            gameObject.SetActive(false);
+    }
+    public void ToggleObject(bool val) =>
+        gameObject.SetActive(val);
+
 }
