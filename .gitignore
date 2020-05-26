@@ -62,21 +62,16 @@ sysinfo.txt
 crashlytics-build.properties
 
 # User defined ignores
-Assets/HTMLRead/
+[Aa]ssets/HTMLRead/
 *.zip
 *.log
 Video Player Test/
 ProjectSettings/
 !Networking.sln
-
-packages/
-
+[Pp]ackages/
 Vid Player Client/
-
 Vid Player Server/
-
-Assets/SimpleWebBrowser/PluginServer/x64/log-file.txt
-
-Assets/SimpleWebBrowser/PluginServer/x64/databases-incognito.meta
-
+[Aa]ssets/SimpleWebBrowser/PluginServer/x64/log-file.txt
+[Aa]ssets/SimpleWebBrowser/PluginServer/x64/databases-incognito.meta
 AnimeTogether/
+!ProjectSettings.asset
