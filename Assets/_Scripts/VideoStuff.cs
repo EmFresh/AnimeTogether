@@ -555,22 +555,9 @@ public class VideoStuff : MonoBehaviour
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
 
-                if (!isClient) //server
-                {
-                    // bool cont = true;
-                    // for (int index = 0; index < connections.Count; ++index)
-                    //     if (!connections[index].prepared.playerReady)
-                    //         cont = false;
-                    // if (!cont)return;
-
-                    state.timeStamp = DateTime.Now.Ticks;
-                    int size = Marshal.SizeOf<PlayerState>();
-                    for (int index = 0; index < connections.Count; index++)
-                    {
-                        //           sendAllPacket(connections[index].soc, size);
-                        sendAllPacket(connections[index].soc, state, size);
-                    }
-                }
+                //isDelayedPlay = isDelayedPlay && !state.isPaused;
+                //if (state.seek || isDelayedPlay)
+                player.time = state.pos + (isClient ? delayTime : 0);
 
                 bool isDelayedPlay;
                 if (isDelayedPlay = (state.isPaused != player.isPaused))
@@ -579,11 +566,25 @@ public class VideoStuff : MonoBehaviour
                     else
                         player.Pause();
 
-                isDelayedPlay = isDelayedPlay && !state.isPaused;
-                if (state.seek || isDelayedPlay)
-                    player.time = state.pos + (isDelayedPlay ? delayTime : 0);
+                if (!isClient) //server
+                {
+                    // bool cont = true;
+                    // for (int index = 0; index < connections.Count; ++index)
+                    //     if (!connections[index].prepared.playerReady)
+                    //         cont = false;
+                    // if (!cont)return;
 
-                stateReceived = false;
+
+                    updateState();
+                    int size = Marshal.SizeOf<PlayerState>();
+                    for (int index = 0; index < connections.Count; index++)
+                    {
+                        //           sendAllPacket(connections[index].soc, size);
+                        sendAllPacket(connections[index].soc, state, size);
+                    }
+                }
+
+                stateReceived = false;//connections can be updated again
             }
 
         if (!tmpTex)
@@ -649,7 +650,7 @@ public class VideoStuff : MonoBehaviour
         state.isPlaying = player.isPlaying;
         state.timeStamp = DateTime.Now.Ticks;
         state.pos = player.time;
-        state.seek = false;
+        state.seek = true;
     }
 
     public void playNPause()

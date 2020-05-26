@@ -16,7 +16,7 @@ public class InitSettings : MonoBehaviour
 
     public static VideoSource source = VideoSource.Url;
 
-    public static string videoURL = "";
+    public static string videoURL = "https://www9.mp4upload.com:282/d/rsxqyzzdz3b4quuojcwrgm2dkg4hcy7xmfszb36fr27yhlqigvjwmxwb/video.mp4";
     public static string path = "";
     public static string file = "";
     public void Awake()
@@ -37,10 +37,8 @@ public class InitSettings : MonoBehaviour
 
     public void IPAddress(string str) => ipAddress = isClient ? str : "";
     public void Port(string num) => port = ushort.Parse(num);
-    public void Source(int val)=>
+    public void Source(int val) =>
         source = (VideoSource)val;
-
-    
 
     public void VideoURL(string str) => videoURL = str == null? "": str;
     public void Path(string str) => path = str == null? "": str;
