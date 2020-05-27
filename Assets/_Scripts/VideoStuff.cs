@@ -159,6 +159,7 @@ public class VideoStuff : MonoBehaviour
         public SocketData socket;
         public void Execute()
         {
+            CreatePopups.SendPopup("Started server");
             string err; //for viewing errors in debug
             while (true)
             {
@@ -255,7 +256,6 @@ public class VideoStuff : MonoBehaviour
                             default:
                                 try
                                 {
-
                                     string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
                                     Marshal.FreeHGlobal(tmp);
 
