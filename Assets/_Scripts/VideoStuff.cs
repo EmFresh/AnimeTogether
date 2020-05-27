@@ -181,9 +181,6 @@ public class VideoStuff : MonoBehaviour
                 connections[connections.Count - 1].soc = connect;
                 connections[connections.Count - 1].prepared = new ClientPrepared();
 
-                if (sendAllPacket(connect, new ClientIndex(index++)) == PResult.P_UnknownError)
-                    PrintError(err = getLastNetworkError());
-
                 Unknown theurl = new Unknown();
                 IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
                 Marshal.StructureToPtr(theurl, tmp, true);
@@ -293,13 +290,13 @@ public class VideoStuff : MonoBehaviour
                                 connections.RemoveAt(index--); //removes any connection that dose not exist
                                 print(err = "Connection removed!!");
                                 CreatePopups.SendPopup(err);
-                                for (int index2 = index; index2 < connections.Count; index2++)
-                                {
-                                    size = Marshal.SizeOf<ClientIndex>();
-                                    //  sendAllPacket(connections[index2].soc, size);
-                                    if (sendAllPacket(connections[index2].soc, new ClientIndex((short)index2)) == PResult.P_UnknownError)
-                                        PrintError(err = getLastNetworkError());
-                                }
+                                //for (int index2 = index; index2 < connections.Count; index2++)
+                                //{
+                                //    size = Marshal.SizeOf<ClientIndex>();
+                                //    //  sendAllPacket(connections[index2].soc, size);
+                                //    if (sendAllPacket(connections[index2].soc, new ClientIndex((short)index2)) == PResult.P_UnknownError)
+                                //        PrintError(err = getLastNetworkError());
+                                //}
                             }
                             catch { /*just incase*/ }
                             continue;
@@ -574,7 +571,6 @@ public class VideoStuff : MonoBehaviour
                     //         cont = false;
                     // if (!cont)return;
 
-
                     updateState();
                     int size = Marshal.SizeOf<PlayerState>();
                     for (int index = 0; index < connections.Count; index++)
@@ -584,7 +580,7 @@ public class VideoStuff : MonoBehaviour
                     }
                 }
 
-                stateReceived = false;//connections can be updated again
+                stateReceived = false; //connections can be updated again
             }
 
         if (!tmpTex)
@@ -747,8 +743,11 @@ public class VideoStuff : MonoBehaviour
             player.SetDirectAudioMute(a, !player.GetDirectAudioMute(a));
     }
 
+    public void ShutdownJobs() => shutdownJobs();
     public static void shutdownJobs()
     {
+
+        CreatePopups.SendPopup("Jobs Shutdown");
         closeNetwork = true;
         if (isNetworkInit)
         {
