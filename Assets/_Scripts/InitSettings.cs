@@ -16,9 +16,10 @@ public class InitSettings : MonoBehaviour
 
     public static VideoSource source = VideoSource.Url;
 
-    public static string videoURL = "https://www9.mp4upload.com:282/d/rsxqyzzdz3b4quuojcwrgm2dkg4hcy7xmfszb36fr27yhlqigvjwmxwb/video.mp4";
+    public static string videoURL = "";
     public static string path = "";
     public static string file = "";
+    
     public void Awake()
     {
         IsClient(isClient);

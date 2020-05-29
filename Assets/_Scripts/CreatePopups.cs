@@ -61,6 +61,12 @@ public class CreatePopups : MonoBehaviour
                 Destroy(popups[index]);
                 //popups[index] = null;
             }
+            else
+            {
+                popups[index].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
+                    Mathf.Lerp( 0 ,popupPrefab.GetComponent<RectTransform>().sizeDelta.y,
+                        popups[index].GetComponent<CanvasGroup>().alpha));
+            }
             // popups[index].transform.GetChild(1).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         }
     }

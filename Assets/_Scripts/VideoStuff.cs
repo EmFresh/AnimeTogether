@@ -341,7 +341,6 @@ public class VideoStuff : MonoBehaviour
                                 default:
                                     if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
-                                    //TODO: receive video url string from host
                                     string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
                                     Marshal.FreeHGlobal(tmp);
 
@@ -436,7 +435,7 @@ public class VideoStuff : MonoBehaviour
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(isClient? ipAddress: "", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(isClient ? ipAddress : "", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         string err;
 
@@ -460,7 +459,6 @@ public class VideoStuff : MonoBehaviour
 
                 jobReceive = new ReceiveNetworkJob() {};
                 hndReceive = jobReceive.Schedule();
-                //TODO: create a network listening job 
             }
             else
             {
@@ -552,8 +550,6 @@ public class VideoStuff : MonoBehaviour
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
 
-                //isDelayedPlay = isDelayedPlay && !state.isPaused;
-                //if (state.seek || isDelayedPlay)
                 player.time = state.pos + (isClient ? delayTime : 0);
 
                 bool isDelayedPlay;

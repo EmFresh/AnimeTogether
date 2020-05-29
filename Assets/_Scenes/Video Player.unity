@@ -3975,5 +3975,15 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 425356355135553989, guid: dc90ad71c3dddb04d96b072347c33bad,
+        type: 3}
+      propertyPath: delay
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 425356355135553989, guid: dc90ad71c3dddb04d96b072347c33bad,
+        type: 3}
+      propertyPath: fadeoutTime
+      value: 0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc90ad71c3dddb04d96b072347c33bad, type: 3}

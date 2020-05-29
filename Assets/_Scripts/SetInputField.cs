@@ -20,7 +20,8 @@ public static class clip
 [RequireComponent(typeof(TMP_InputField))]
 public class SetInputField : MonoBehaviour
 {
-    static string tmp="";
+    static string tmp = "";
+    bool ipv6 = false;
 
     void Awake()
     {
@@ -32,15 +33,22 @@ public class SetInputField : MonoBehaviour
         GetComponent<TMP_InputField>().text.CopyToClipboard();
     }
 
+    public void setToIpv6(bool val)
+    {
+        ipv6 = val;
+        if (!GetComponent<TMP_InputField>().interactable)
+            refreshPublicIP();
+    }
+
     public void refreshPublicIP()
     {
         CreatePopups.SendPopup("waiting on Refresh...");
-        GetComponent<TMP_InputField>().text = GetPublicIPAddress();
-        if (GetComponent<TMP_InputField>().text!="")
+        GetComponent<TMP_InputField>().text = ipv6 ? GetPublicIPv6Address() : GetPublicIPv4Address();
+        if (GetComponent<TMP_InputField>().text != "")
             CreatePopups.SendPopup("Refreshed public IP");
-            else
+        else
             CreatePopups.SendPopup("Refreshed failed");
-            
+
     }
 
     public void setToPublicIP(bool set)
@@ -49,7 +57,7 @@ public class SetInputField : MonoBehaviour
         {
             tmp = GetComponent<TMP_InputField>().text;
             tmp = tmp == null ? "" : tmp;
-            GetComponent<TMP_InputField>().text = GetPublicIPAddress();
+            refreshPublicIP();
         }
         else
         {
@@ -57,5 +65,4 @@ public class SetInputField : MonoBehaviour
         }
     }
 
-  
 }

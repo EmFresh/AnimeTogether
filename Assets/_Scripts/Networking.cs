@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Unity.Collections.LowLevel.Unsafe;
@@ -148,19 +149,27 @@ public static class MyNetworking
     public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
 
     //code from: https://www.c-sharpcorner.com/blogs/how-to-get-public-ip-address-using-c-sharp1
-    public static string GetPublicIPAddress()
+    public static string GetPublicIPv4Address()
     {
         String address = "";
-        WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
+        WebRequest request = WebRequest.Create("https://ip4.seeip.org");
         using(WebResponse response = request.GetResponse())
         using(StreamReader stream = new StreamReader(response.GetResponseStream()))
         {
             address = stream.ReadToEnd();
         }
 
-        int first = address.IndexOf("Address: ") + 9;
-        int last = address.LastIndexOf("</body>");
-        address = address.Substring(first, last - first);
+        return address;
+    }
+    public static string GetPublicIPv6Address()
+    {
+        String address = "";
+        WebRequest request = WebRequest.Create("https://ip6.seeip.org");
+        using(WebResponse response = request.GetResponse())
+        using(StreamReader stream = new StreamReader(response.GetResponseStream()))
+        {
+            address = stream.ReadToEnd();
+        }
 
         return address;
     }
