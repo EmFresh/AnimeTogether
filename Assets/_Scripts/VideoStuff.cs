@@ -722,6 +722,7 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, state);
         }
     }
+
     public void volUp()
     {
         for (ushort a = 0; a < player.audioTrackCount; ++a)
@@ -732,7 +733,6 @@ public class VideoStuff : MonoBehaviour
         for (ushort a = 0; a < player.audioTrackCount; ++a)
             player.SetDirectAudioVolume(a, Mathf.Clamp(player.GetDirectAudioVolume(a) - 0.1f, 0, 1)); //go down 10%
     }
-
     public void mute()
     {
         for (ushort a = 0; a < player.audioTrackCount; ++a)
