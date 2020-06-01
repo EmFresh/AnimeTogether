@@ -43,12 +43,15 @@ public class SetInputField : MonoBehaviour
     public void refreshPublicIP()
     {
         CreatePopups.SendPopup("waiting on Refresh...");
+        Invoke("getPublicIP", .2f);
+    }
+    void getPublicIP()
+    {
         GetComponent<TMP_InputField>().text = ipv6 ? GetPublicIPv6Address() : GetPublicIPv4Address();
         if (GetComponent<TMP_InputField>().text != "")
             CreatePopups.SendPopup("Refreshed public IP");
         else
             CreatePopups.SendPopup("Refreshed failed");
-
     }
 
     public void setToPublicIP(bool set)
