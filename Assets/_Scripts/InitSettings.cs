@@ -25,7 +25,7 @@ public class InitSettings : MonoBehaviour
         IsClient(isClient);
         IsIPv6(isIPv6);
         // IPAddress(MyNetworking.GetPublicIPAddress());
-        Port(port.ToString());
+        Port("5555");
         Source((int)source);
         VideoURL(videoURL);
         Path(path);
@@ -44,5 +44,11 @@ public class InitSettings : MonoBehaviour
     public void VideoURL(string str) => videoURL = str == null? "": str;
     public void Path(string str) => path = str == null? "": str;
     public void File(string str) => file = str == null? "": str;
+
+      void OnApplicationQuit()
+    {
+        VideoStuff.shutdownJobs();
+        
+    }
 
 }
