@@ -219,7 +219,6 @@ public class VideoStuff : MonoBehaviour
             int size;
             while (true)
             {
-                //unknown = new Unknown();
                 if (isClient)
                 {
                     //prevent unknown data collection
@@ -289,25 +288,24 @@ public class VideoStuff : MonoBehaviour
                     for (int index = 0; index < connections.Count; index++)
                     {
                         //helps to minimize crashes
-                        networkWaitForSeconds(0.2f); //
+                        networkWaitForSeconds(0.2f);
 
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
                             PrintError(err = getLastNetworkError());
                             if (closeNetwork)
                                 break;
+
+                            continue;
+                        }
+                        else if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_Disconnection)
+                        {
                             try
                             {
-                                connections.RemoveAt(index--); //removes any connection that dose not exist
+                                connections.RemoveAt(index--); //removes any connections that do not exist
                                 print(err = "Connection removed!!");
                                 CreatePopups.SendPopup(err);
-                                //for (int index2 = index; index2 < connections.Count; index2++)
-                                //{
-                                //    size = Marshal.SizeOf<ClientIndex>();
-                                //    //  sendAllPacket(connections[index2].soc, size);
-                                //    if (sendAllPacket(connections[index2].soc, new ClientIndex((short)index2)) == PResult.P_UnknownError)
-                                //        PrintError(err = getLastNetworkError());
-                                //}
+
                             }
                             catch { /*just incase*/ }
                             continue;
@@ -336,7 +334,6 @@ public class VideoStuff : MonoBehaviour
                                         connections[a].prepared.playerReady = false;
 
                                     stateReceived = true;
-
                                     break;
 
                                 case MessageType.ClientPrepared:
@@ -395,7 +392,6 @@ public class VideoStuff : MonoBehaviour
         setVideoVariables();
 
         state = new PlayerState();
-        //  staticVideoURL = videoURL;
 
         //Setup controls
         controls = new Controls();
@@ -425,9 +421,6 @@ public class VideoStuff : MonoBehaviour
         player.errorReceived += VideoError;
         player.prepareCompleted += ctx => VideoReady();
         player.seekCompleted += ctx => VideoSeekComplete();
-        // player.clockResyncOccurred;
-        // player.frameDropped;
-        //player.frameReady;
 
         if (!isClient) //server
             if (staticVideoURL != "")
@@ -468,10 +461,7 @@ public class VideoStuff : MonoBehaviour
                 hndReceive = jobReceive.Schedule();
             }
             else
-            {
                 PrintError(err = getLastNetworkError());
-                return;
-            }
 
         }
         else
@@ -485,9 +475,8 @@ public class VideoStuff : MonoBehaviour
 
             }
             else
-            {
                 PrintError(err = getLastNetworkError());
-            }
+
         }
 
     }
@@ -559,10 +548,7 @@ public class VideoStuff : MonoBehaviour
 
                 player.time = state.pos + (false ? delayTime : 0);
 
-                //bool isDelayedPlay;
-
                 stateReceived = false; //connections can be updated again
-
             }
 
         if (resume)
@@ -603,7 +589,6 @@ public class VideoStuff : MonoBehaviour
         CreatePopups.SendPopup(err);
         print("attempting retry");
 
-        //  var tmp = source.url;
         source.Prepare();
     }
     void VideoReady()
@@ -627,7 +612,6 @@ public class VideoStuff : MonoBehaviour
         }
 
         isPrepared = true;
-        //   playNPause();
     }
     void VideoSeekComplete()
     {
@@ -636,12 +620,6 @@ public class VideoStuff : MonoBehaviour
 
         if (!isClient) //server
         {
-            // bool cont = true;
-            // for (int index = 0; index < connections.Count; ++index)
-            //     if (!connections[index].prepared.playerReady)
-            //         cont = false;
-            // if (!cont)return;
-
             player.Pause(); //trying to start at the same time
 
             state.timeStamp = DateTime.Now.Ticks;
@@ -652,8 +630,6 @@ public class VideoStuff : MonoBehaviour
                 sendAllPacket(connections[index].soc, state, Marshal.SizeOf<PlayerState>());
             }
         }
-        //else //client
-        //    player.Pause(); //trying to start at the same time
 
         ClientPrepared tmp = new ClientPrepared();
         tmp.playerReady = true;
@@ -683,7 +659,6 @@ public class VideoStuff : MonoBehaviour
 
     public void playNPause()
     {
-
         if (!isClient)
             stateReceived = true;
 
@@ -691,10 +666,8 @@ public class VideoStuff : MonoBehaviour
         state.isPaused = !state.isPaused;
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
-        {
-            //    sendAllPacket(soc, size);
             sendAllPacket(soc, state);
-        }
+
     }
     public void skipIntro()
     {
@@ -706,10 +679,8 @@ public class VideoStuff : MonoBehaviour
         state.seek = true;
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
-        {
-            //     sendAllPacket(soc, size);
             sendAllPacket(soc, state);
-        }
+
     }
     public void unskipIntro()
     {
@@ -721,10 +692,8 @@ public class VideoStuff : MonoBehaviour
         state.seek = true;
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
-        {
-            //     sendAllPacket(soc, size);
             sendAllPacket(soc, state);
-        }
+
     }
     public void seekL()
     {
@@ -736,10 +705,7 @@ public class VideoStuff : MonoBehaviour
         state.pos = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
-        {
-            //  sendAllPacket(soc, size);
             sendAllPacket(soc, state);
-        }
 
     }
     public void seekR()
@@ -753,10 +719,9 @@ public class VideoStuff : MonoBehaviour
         state.pos = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
-        {
-            //sendAllPacket(soc, size);
+
             sendAllPacket(soc, state);
-        }
+
     }
 
     public void volUp()
@@ -803,7 +768,6 @@ public class VideoStuff : MonoBehaviour
     void OnApplicationQuit()
     {
         shutdownJobs();
-
         closeNetworkPlugin();
     }
 
