@@ -19,7 +19,7 @@ public class VideoStuff : MonoBehaviour
 {
     #region Variables
 
-    #region Editor
+    #region Public
 
     //   [Foldout("Setable Objects", true)]
     //   [InitializationField]
@@ -59,10 +59,10 @@ public class VideoStuff : MonoBehaviour
 
     RenderTexture tmpTex;
     Controls controls;
-    bool isPrepared;
+    bool isPrepared = false;
     static short index = 0;
     static PlayerState state;
-    static bool stateReceived = false, closeNetwork = false;
+    static bool stateReceived = false, closeNetwork = false, resume = false;
     static IPEndpointData ip;
     static SocketData soc;
     static List<Client> connections = new List<Client>();
@@ -73,6 +73,8 @@ public class VideoStuff : MonoBehaviour
     #endregion
 
     #region Jobs 
+
+    #region Job vars
     static AcceptNetworkJob jobAccept;
     static ReceiveNetworkJob jobReceive;
     static JobHandle hndAccept, hndReceive;
@@ -85,6 +87,7 @@ public class VideoStuff : MonoBehaviour
         ClientPrepared,
 
     }
+    #endregion
 
     #region Classes
     public class Client
@@ -131,9 +134,9 @@ public class VideoStuff : MonoBehaviour
             type = MessageType.PlayerState;
             size = Marshal.SizeOf<PlayerState>();
         }
-        public bool isPlaying;
-        public bool isPaused;
-        public bool seek;
+        public bool isPlaying = false;
+        public bool isPaused = true;
+        public bool seek = false;
 
         public long timeStamp;
         public double pos;
@@ -238,21 +241,29 @@ public class VideoStuff : MonoBehaviour
                         switch (Marshal.PtrToStructure<Unknown>(unknown).type)
                         {
                             case MessageType.ClientIndex:
+                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
                                 ClientIndex index = Marshal.PtrToStructure<ClientIndex>(unknown);
                                 Marshal.FreeHGlobal(tmp);
 
                                 break;
                             case MessageType.PlayerState:
+                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
                                 PlayerState state = Marshal.PtrToStructure<PlayerState>(unknown);
                                 Marshal.FreeHGlobal(tmp);
 
                                 VideoStuff.state = state;
-
                                 stateReceived = true;
                                 break;
+                            case MessageType.ClientPrepared:
+                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
+                                ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(unknown);
+                                Marshal.FreeHGlobal(tmp);
+
+                                resume = true;
+                                break;
                             default:
                                 try
                                 {
@@ -278,7 +289,7 @@ public class VideoStuff : MonoBehaviour
                     for (int index = 0; index < connections.Count; index++)
                     {
                         //helps to minimize crashes
-                        networkWaitForSeconds(0.2f);
+                        networkWaitForSeconds(0.2f); //
 
                         if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                         {
@@ -314,7 +325,6 @@ public class VideoStuff : MonoBehaviour
                             switch (Marshal.PtrToStructure<Unknown>(unknown).type)
                             {
                                 case MessageType.PlayerState:
-                                    if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
                                     PlayerState state = Marshal.PtrToStructure<PlayerState>(unknown);
                                     Marshal.FreeHGlobal(tmp);
@@ -322,16 +332,14 @@ public class VideoStuff : MonoBehaviour
                                     while (stateReceived); //this is correct 
                                     VideoStuff.state = state;
 
-                                    if (state.seek)
-                                        for (int a = 0; a < connections.Count; ++a)
-                                            connections[a].prepared.playerReady = false;
+                                    for (int a = 0; a < connections.Count; ++a)
+                                        connections[a].prepared.playerReady = false;
 
                                     stateReceived = true;
 
                                     break;
 
                                 case MessageType.ClientPrepared:
-                                    if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
                                     ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(unknown);
                                     Marshal.FreeHGlobal(tmp);
@@ -339,7 +347,6 @@ public class VideoStuff : MonoBehaviour
                                     connections[index].prepared = prep;
                                     break;
                                 default:
-                                    if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
 
                                     string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
                                     Marshal.FreeHGlobal(tmp);
@@ -377,7 +384,7 @@ public class VideoStuff : MonoBehaviour
 
         source = InitSettings.source;
 
-        videoURL = InitSettings.videoURL;
+        staticVideoURL = InitSettings.videoURL;
         path = InitSettings.path;
         file = InitSettings.file;
     }
@@ -388,7 +395,7 @@ public class VideoStuff : MonoBehaviour
         setVideoVariables();
 
         state = new PlayerState();
-        staticVideoURL = videoURL;
+        //  staticVideoURL = videoURL;
 
         //Setup controls
         controls = new Controls();
@@ -503,7 +510,7 @@ public class VideoStuff : MonoBehaviour
                 if (staticVideoURL != videoURL)
                     foreach (var connect in connections)
                     {
-                        staticVideoURL = videoURL;
+                        videoURL = staticVideoURL;
                         updateState();
 
                         int size = Marshal.SizeOf<PlayerState>();
@@ -550,34 +557,27 @@ public class VideoStuff : MonoBehaviour
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
 
-                player.time = state.pos + (isClient ? delayTime : 0);
+                player.time = state.pos + (false ? delayTime : 0);
 
-                bool isDelayedPlay;
-                if (isDelayedPlay = (state.isPaused != player.isPaused))
-                    if (player.isPaused || !player.isPlaying)
-                        player.Play();
-                    else
-                        player.Pause();
-
-                if (!isClient) //server
-                {
-                    // bool cont = true;
-                    // for (int index = 0; index < connections.Count; ++index)
-                    //     if (!connections[index].prepared.playerReady)
-                    //         cont = false;
-                    // if (!cont)return;
-
-                    updateState();
-                    int size = Marshal.SizeOf<PlayerState>();
-                    for (int index = 0; index < connections.Count; index++)
-                    {
-                        //           sendAllPacket(connections[index].soc, size);
-                        sendAllPacket(connections[index].soc, state, size);
-                    }
-                }
+                //bool isDelayedPlay;
 
                 stateReceived = false; //connections can be updated again
+
             }
+
+        if (resume)
+        {
+            for (int index = 0; index < connections.Count; index++)
+                if (!connections[index].prepared.playerReady)
+                    return;
+
+            if (!state.isPaused)
+                player.Play();
+            else
+                player.Pause();
+
+            resume = false;
+        }
 
         if (!tmpTex)
             if ((int)player.width != 0 && (int)player.height != 0)
@@ -588,7 +588,7 @@ public class VideoStuff : MonoBehaviour
                 tmpTex.antiAliasing = 1;
                 tmpTex.depth = 0;
 
-                //Assign texture as UI texture and render target
+                //Assign texture to UI texture and render target
                 player.GetComponent<VideoPlayer>().targetTexture = tmpTex;
                 video.GetComponent<RawImage>().texture = tmpTex;
             }
@@ -611,14 +611,21 @@ public class VideoStuff : MonoBehaviour
         print("Video is prepared!!");
         CreatePopups.SendPopup("Video is prepared!!");
 
+        ClientPrepared tmp = new ClientPrepared();
+        tmp.playerReady = true;
+
         if (isClient)
         {
-
-            ClientPrepared tmp = new ClientPrepared();
-            tmp.playerReady = true;
-            //   sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
             sendAllPacket(soc, tmp);
         }
+        else //Server
+        {
+            resume = true;
+
+            for (int index = 0; index < connections.Count; index++)
+                sendAllPacket(connections[index].soc, tmp);
+        }
+
         isPrepared = true;
         //   playNPause();
     }
@@ -627,13 +634,42 @@ public class VideoStuff : MonoBehaviour
         print("Video seek compleated!!");
         CreatePopups.SendPopup("Video seek compleated!!");
 
+        if (!isClient) //server
+        {
+            // bool cont = true;
+            // for (int index = 0; index < connections.Count; ++index)
+            //     if (!connections[index].prepared.playerReady)
+            //         cont = false;
+            // if (!cont)return;
+
+            player.Pause(); //trying to start at the same time
+            var tmpPause = state.isPaused;
+            updateState();
+            state.isPaused = tmpPause;
+            for (int index = 0; index < connections.Count; index++)
+            {
+                connections[index].prepared.playerReady = false;
+                sendAllPacket(connections[index].soc, state, Marshal.SizeOf<PlayerState>());
+            }
+        }
+        else //client
+            player.Pause(); //trying to start at the same time
+
+        ClientPrepared tmp = new ClientPrepared();
+        tmp.playerReady = true;
+
         if (isClient)
         {
-            ClientPrepared tmp = new ClientPrepared();
-            tmp.playerReady = true;
-            //    sendAllPacket(soc, Marshal.SizeOf<ClientPrepared>());
             sendAllPacket(soc, tmp);
         }
+        else //Server
+        {
+            resume = true;
+
+            for (int index = 0; index < connections.Count; index++)
+                sendAllPacket(connections[index].soc, tmp);
+        }
+
         isPrepared = true;
     }
     void updateState()
@@ -762,11 +798,18 @@ public class VideoStuff : MonoBehaviour
         }
         closeNetwork = false;
     }
+
     // Callback sent to all game objects before the application is quit.
     void OnApplicationQuit()
     {
         shutdownJobs();
 
         closeNetworkPlugin();
+    }
+
+    // This function is called when the MonoBehaviour will be destroyed.
+    void OnDestroy()
+    {
+        staticVideoURL = "";
     }
 }

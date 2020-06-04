@@ -138,7 +138,7 @@ public static class MyNetworking
 
     #region Helper Functions 
     ///<summary>
-    ///A thread safe function that waits for a specified time in seconds 
+    ///A thread safe function that waits for a specified time in secondson the current thread
     ///</summary>
     public static void networkWaitForSeconds(float sec)
     {
