@@ -652,8 +652,8 @@ public class VideoStuff : MonoBehaviour
                 sendAllPacket(connections[index].soc, state, Marshal.SizeOf<PlayerState>());
             }
         }
-        else //client
-            player.Pause(); //trying to start at the same time
+        //else //client
+        //    player.Pause(); //trying to start at the same time
 
         ClientPrepared tmp = new ClientPrepared();
         tmp.playerReady = true;
