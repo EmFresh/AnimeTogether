@@ -643,9 +643,9 @@ public class VideoStuff : MonoBehaviour
             // if (!cont)return;
 
             player.Pause(); //trying to start at the same time
-            var tmpPause = state.isPaused;
-            updateState();
-            state.isPaused = tmpPause;
+
+            state.timeStamp = DateTime.Now.Ticks;
+
             for (int index = 0; index < connections.Count; index++)
             {
                 connections[index].prepared.playerReady = false;
