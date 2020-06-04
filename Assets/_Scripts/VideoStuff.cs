@@ -159,32 +159,32 @@ public class VideoStuff : MonoBehaviour
     #region Structs
     public struct AcceptNetworkJob : IJob
     {
-        public SocketData socket;
+        //  public SocketData socket;
         public void Execute()
         {
-            CreatePopups.SendPopup("Started server");
             string err; //for viewing errors in debug
-            while (true)
+            // while (true)
             {
 
                 SocketData connect = new SocketData();
                 IPEndpointData connectIP = new IPEndpointData();
-                if (acceptSocket.Invoke(socket, connect, connectIP) == PResult.P_UnknownError) //check
+                if (acceptSocket.Invoke(soc, connect, connectIP) == PResult.P_UnknownError) //check
                 {
                     if (!closeNetwork)
                     {
                         PrintError(err = getLastNetworkError());
                         CreatePopups.SendPopup(err);
-                        continue;
+                        return;
                     }
-                    else
-                        break;
+                    //  else
+                    //      break;
                 }
 
                 connections.Add(new Client());
                 connections[connections.Count - 1].soc = connect;
                 connections[connections.Count - 1].prepared = new ClientPrepared();
 
+                //This is so BIG BRAIN its stupid
                 Unknown theurl = new Unknown();
                 IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
                 Marshal.StructureToPtr(theurl, tmp, true);
@@ -202,8 +202,8 @@ public class VideoStuff : MonoBehaviour
                 print(err = "new connection!");
                 CreatePopups.SendPopup(err);
 
-                if (closeNetwork)
-                    break;
+                // if (closeNetwork)
+                //     break;
             }
         }
     }
@@ -217,18 +217,17 @@ public class VideoStuff : MonoBehaviour
             IntPtr tmp = IntPtr.Zero;
             IntPtr unknown = IntPtr.Zero;
             int size;
-            while (true)
+            //  while (true)
             {
                 if (isClient)
                 {
                     //prevent unknown data collection
                     if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                     {
-                        if (closeNetwork)
-                            break;
-                        continue;
+
+                        return;
                     }
-                    if (soc.pollCount == 0)continue;
+                    if (soc.pollCount == 0)return;
 
                     recvAllPacket(soc, out size);
                     unknown = Marshal.AllocHGlobal(size);
@@ -240,14 +239,14 @@ public class VideoStuff : MonoBehaviour
                         switch (Marshal.PtrToStructure<Unknown>(unknown).type)
                         {
                             case MessageType.ClientIndex:
-                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
+                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
 
                                 ClientIndex index = Marshal.PtrToStructure<ClientIndex>(unknown);
                                 Marshal.FreeHGlobal(tmp);
 
                                 break;
                             case MessageType.PlayerState:
-                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
+                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
 
                                 PlayerState state = Marshal.PtrToStructure<PlayerState>(unknown);
                                 Marshal.FreeHGlobal(tmp);
@@ -256,7 +255,7 @@ public class VideoStuff : MonoBehaviour
                                 stateReceived = true;
                                 break;
                             case MessageType.ClientPrepared:
-                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)continue;
+                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
 
                                 ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(unknown);
                                 Marshal.FreeHGlobal(tmp);
@@ -362,8 +361,8 @@ public class VideoStuff : MonoBehaviour
                     }
                 }
 
-                if (closeNetwork)
-                    break;
+                //  if (closeNetwork)
+                //      break;
             }
         }
     }
@@ -451,13 +450,12 @@ public class VideoStuff : MonoBehaviour
         {
             if (listenEndpointToSocket.Invoke(ip, soc) == PResult.P_Success)
             {
-                jobAccept = new AcceptNetworkJob()
-                {
-                socket = soc
-                };
+                CreatePopups.SendPopup("Started server");
+
+                jobAccept = new AcceptNetworkJob();
                 hndAccept = jobAccept.Schedule();
 
-                jobReceive = new ReceiveNetworkJob() {};
+                jobReceive = new ReceiveNetworkJob();
                 hndReceive = jobReceive.Schedule();
             }
             else
@@ -490,6 +488,16 @@ public class VideoStuff : MonoBehaviour
     {
 
         string err;
+
+        if (isNetworkInit)
+        {
+            if (!isClient) //Server
+                if (hndAccept.IsCompleted)
+                    hndAccept = jobAccept.Schedule();
+
+            if (hndReceive.IsCompleted)
+                hndReceive = jobReceive.Schedule();
+        }
 
         //receiving video url
         if (source == VideoSource.Url)
