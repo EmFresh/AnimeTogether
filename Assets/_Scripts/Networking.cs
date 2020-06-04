@@ -29,7 +29,8 @@ public static class MyNetworking
     public enum PResult : int
     {
         P_Success,
-        P_UnknownError
+        P_UnknownError,
+        P_Disconnection
     }
     public enum EventsPoll
     {
@@ -39,7 +40,6 @@ public static class MyNetworking
         EP_IN = EP_RDBAND | EP_RDNORM, //combination of the EPRDNORM and EPRDBAND
         EP_OUT = EP_WRNORM, //same as the EPWRNORM
     }
-
     public enum REventsPoll
     {
         REP_ERR = 0x0001, //An error has occurred.
@@ -138,7 +138,7 @@ public static class MyNetworking
 
     #region Helper Functions 
     ///<summary>
-    ///A thread safe function that waits for a specified time in seconds 
+    ///A thread safe function that waits for a specified time in secondson the current thread
     ///</summary>
     public static void networkWaitForSeconds(float sec)
     {

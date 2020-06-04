@@ -12,7 +12,7 @@ public class InitSettings : MonoBehaviour
     public static bool isIPv6 = false;
 
     public static string ipAddress = "";
-    public static ushort port = 5555;
+    public static ushort port = 5000;
 
     public static VideoSource source = VideoSource.Url;
 
@@ -25,7 +25,7 @@ public class InitSettings : MonoBehaviour
         IsClient(isClient);
         IsIPv6(isIPv6);
         // IPAddress(MyNetworking.GetPublicIPAddress());
-        Port("5555");
+        Port(port.ToString());
         Source((int)source);
         VideoURL(videoURL);
         Path(path);
