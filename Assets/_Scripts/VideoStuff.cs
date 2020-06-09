@@ -59,8 +59,8 @@ public class VideoStuff : MonoBehaviour
 
     RenderTexture tmpTex;
     Controls controls;
-    bool isPrepared;
-    static short index = 0;
+     bool isPrepared = false;
+    // static short index = 0;
     static PlayerState state;
     static bool stateReceived = false, closeNetwork = false;
     static IPEndpointData ip;
