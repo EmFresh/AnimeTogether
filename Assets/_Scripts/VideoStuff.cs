@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using HtmlAgilityPack;
 //using MyBox;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -59,7 +58,7 @@ public class VideoStuff : MonoBehaviour
 
     RenderTexture tmpTex;
     Controls controls;
-     bool isPrepared = false;
+    bool isPrepared = false;
     // static short index = 0;
     static PlayerState state;
     static bool stateReceived = false, closeNetwork = false;
@@ -766,7 +765,7 @@ public class VideoStuff : MonoBehaviour
     void OnApplicationQuit()
     {
         shutdownJobs();
-
+        HtmlVideoFinder.VideoFinderQuit();
         closeNetworkPlugin();
     }
 }

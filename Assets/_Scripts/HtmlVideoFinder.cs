@@ -2,18 +2,78 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-//using HtmlAgilityPack;
-//using HTML_Finder;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-//using OpenQA.Selenium.
-//using ScrapySharp.Extensions;
-//using ScrapySharp.Network;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Remote;
+using TMPro;
+using Unity.Jobs;
 using UnityEngine;
 
 public class HtmlVideoFinder : MonoBehaviour
 {
-    static ChromeDriver driver;
+    public TMP_InputField vidURL;
+    static IWebDriver driver;
+    static FindURLJob jobFind;
+    static JobHandle hndFind;
+    static string url;
+    static bool setField = false;
+
+    struct FindURLJob : IJob
+    {
+        public void Execute()
+        {
+            try
+            {
+                driver.Navigate().GoToUrl(url);
+            }
+            catch
+            {
+                CreatePopups.SendPopup("Video URL Not Found");
+                return;
+            }
+            ReadOnlyCollection<IWebElement> ele = driver.FindElements(By.TagName("iframe"));
+            // driver.Capabilities.BrowserName;
+
+            string str;
+
+            // OpenQA.Selenium.
+            bool noURLFound = true;
+            foreach (var element in ele)
+            {
+                str = element.GetAttribute("src");
+
+                //for mp4upload
+                if (str.Contains("mp4upload"))
+                {
+                    driver.SwitchTo().Frame(element);
+
+                    try
+                    {
+                        InitSettings.videoURL = driver.FindElement(By.TagName("source")).GetAttribute("src");
+
+                        CreatePopups.SendPopup("Found video URL!!!");
+                        setField = true;
+                        noURLFound = false;
+                    }
+                    catch {}
+
+                    //break;
+                    driver.SwitchTo().ParentFrame();
+                }
+            }
+
+            if (noURLFound)
+                CreatePopups.SendPopup("No video URL Found");
+
+        }
+    }
+#if UNITY_EDITOR
+    const string bin = "";
+#else
+    const string bin = "/..";
+#endif
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -22,52 +82,65 @@ public class HtmlVideoFinder : MonoBehaviour
         if (driver == null)
         {
             ChromeOptions options = new ChromeOptions();
+            //options.BinaryLocation = Application.dataPath + bin+"/chromedriver.exe";
             options.AddArgument("--headless");
-            driver = new ChromeDriver(options);
+            //options.AddArgument("--debug-devtools");
+
+            //  options.BrowserExecutableLocation = Application.dataPath + bin;
+
+            var service = ChromeDriverService.CreateDefaultService(Application.dataPath + bin);
+            /*  
+                An address of a Chrome debugger server to connect to, in the form of<hostname / ip : port>, e.g.
+                '127.0.0.1:38947' 
+            */
+
+#if UNITY_EDITOR
+            service.HideCommandPromptWindow = false;
+#endif
+
+            //service.PortServerAddress = "127.0.0.1";
+            //options.PlatformName = @"windows";
+
+            driver = new ChromeDriver(Application.dataPath + bin 
+               , options);
+
+            // ((ChromeDriver)driver).hide();
         }
     }
 
+    void Update()
+    {
+        if (setField)
+        {
+            vidURL.text = InitSettings.videoURL;
+            setField = false;
+        }
+    }
     public void URLStringFinder(string url)
     {
-        driver.Navigate().GoToUrl(@"https://9anime.ru/watch/welcome-to-demon-school-iruma-kun-dub.1k0x/jvv8333");
-        ReadOnlyCollection<IWebElement> ele = driver.FindElements(By.TagName("iframe"));
-        // driver.Capabilities.BrowserName;
 
-        string str;
-        // OpenQA.Selenium.
-        foreach (var element in ele)
+        if (driver != null)
         {
-            str = element.GetAttribute("src");
-            print(str);
-            try
+            if (hndFind.IsCompleted)
             {
-                var tmp = element.FindElement(By.TagName("source"));
-                print("step 1");
-                print(tmp.GetAttribute("src"));
-                print("step 2");
+                HtmlVideoFinder.url = url;
+                CreatePopups.SendPopup("Finding video URL...\nCan take longer depending on internet connectivity");
+                jobFind = new FindURLJob();
+                hndFind = jobFind.Schedule();
             }
-            catch
-            {
-                print("this did not work");
-            }
+            else
+                CreatePopups.SendPopup("Still going...\nHave some dam patience :<");
 
-            if (str.Contains("mp4upload"))
-            {
-                driver.Navigate().GoToUrl(str);
-
-                try
-                {
-                    print(driver.FindElement(By.TagName("source")).GetAttribute("src"));
-                }
-                catch
-                {
-                    print("could not find video");
-                    //<div class="plyr__video-wrapper"><video poster="https://www12.mp4upload.com/i/01471/fyrrthn00d03.jpg" playsinline=""><source src="https://www12.mp4upload.com:282/d/q6xqbsjvz3b4quuowowryk2sknisf4o6yz7ujpy7bo5yo5m2bnaj4spm/video.mp4" type="video/mp4"></video></div>
-                }
-                break;
-            }
         }
+        else
+            CreatePopups.SendPopup("Driver Not Initialized");
 
+    }
+
+    public static void VideoFinderQuit()
+    {
+        if (driver != null)
+            driver.Quit();
     }
 
     /// <summary>
@@ -75,7 +148,7 @@ public class HtmlVideoFinder : MonoBehaviour
     /// </summary>
     void OnApplicationQuit()
     {
-        driver.Quit();
+        VideoFinderQuit();
         //        driver.Close();
     }
 

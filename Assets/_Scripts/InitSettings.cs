@@ -25,7 +25,7 @@ public class InitSettings : MonoBehaviour
         IsClient(isClient);
         IsIPv6(isIPv6);
         // IPAddress(MyNetworking.GetPublicIPAddress());
-        Port("5555");
+        Port("5000");
         Source((int)source);
         VideoURL(videoURL);
         Path(path);
