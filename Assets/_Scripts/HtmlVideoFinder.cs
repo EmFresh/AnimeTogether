@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Remote;
 using TMPro;
@@ -41,8 +42,12 @@ public class HtmlVideoFinder : MonoBehaviour
             bool noURLFound = true;
             foreach (var element in ele)
             {
-                str = element.GetAttribute("src");
-
+                try
+                {
+                    str = element.GetAttribute("src");
+                }
+                catch { continue; }
+                
                 //for mp4upload
                 if (str.Contains("mp4upload"))
                 {
@@ -82,27 +87,14 @@ public class HtmlVideoFinder : MonoBehaviour
         if (driver == null)
         {
             ChromeOptions options = new ChromeOptions();
-            //options.BinaryLocation = Application.dataPath + bin+"/chromedriver.exe";
             options.AddArgument("--headless");
-            //options.AddArgument("--debug-devtools");
-
-            //  options.BrowserExecutableLocation = Application.dataPath + bin;
-
             var service = ChromeDriverService.CreateDefaultService(Application.dataPath + bin);
-            /*  
-                An address of a Chrome debugger server to connect to, in the form of<hostname / ip : port>, e.g.
-                '127.0.0.1:38947' 
-            */
 
 #if UNITY_EDITOR
-            service.HideCommandPromptWindow = false;
+            service.HideCommandPromptWindow = true;
 #endif
 
-            //service.PortServerAddress = "127.0.0.1";
-            //options.PlatformName = @"windows";
-
-            driver = new ChromeDriver(Application.dataPath + bin 
-               , options);
+            driver = new ChromeDriver(service, options);
 
             // ((ChromeDriver)driver).hide();
         }
