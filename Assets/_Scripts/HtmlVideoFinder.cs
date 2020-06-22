@@ -47,7 +47,7 @@ public class HtmlVideoFinder : MonoBehaviour
                     str = element.GetAttribute("src");
                 }
                 catch { continue; }
-                
+
                 //for mp4upload
                 if (str.Contains("mp4upload"))
                 {
