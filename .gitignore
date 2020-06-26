@@ -63,7 +63,6 @@ crashlytics-build.properties
 
 # User defined ignores
 [Aa]ssets/HTMLRead/
-*.zip
 *.log
 Video Player Test/
 ProjectSettings/
@@ -77,3 +76,7 @@ AnimeTogether/
 !ProjectSettings.asset
 
 AnimeTogether Build/
+
+Assets/My Profile/
+
+Assets/My Profile.meta
