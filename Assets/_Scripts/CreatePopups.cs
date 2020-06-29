@@ -11,8 +11,11 @@ public class CreatePopups : MonoBehaviour
     private List<GameObject> popups = new List<GameObject>();
     private static IList<string> popupMsgs = new List<string>();
 
-    public static void SendPopup(string msg) => popupMsgs.Add(msg);
-
+    public static void SendPopup(string msg, bool toConsole=false)
+    {
+        popupMsgs.Add(msg);
+        if (toConsole)print(msg);
+    }
     // Update is called once per frame
     void Update()
     {
@@ -63,7 +66,7 @@ public class CreatePopups : MonoBehaviour
             else
             {
                 popups[index].GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-                    Mathf.Lerp( 0 ,popupPrefab.GetComponent<RectTransform>().sizeDelta.y,
+                    Mathf.Lerp(0, popupPrefab.GetComponent<RectTransform>().sizeDelta.y,
                         popups[index].GetComponent<CanvasGroup>().alpha));
             }
             // popups[index].transform.GetChild(1).GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
