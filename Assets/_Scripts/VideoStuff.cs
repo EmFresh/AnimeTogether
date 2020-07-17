@@ -112,7 +112,8 @@ public class VideoStuff : MonoBehaviour
             type = MessageType.Unknown; //int
             size = Marshal.SizeOf<Unknown>(); //int
         }
-        public Quaternion l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16; //data buffering (the hard way) 
+        public Quaternion l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16,
+        l17, l18, l19, l20, l21, l22, l23, l24, l25, l26, l27, l28, l29, l30, l31, l32; //data buffering (the hard way) 
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -163,48 +164,41 @@ public class VideoStuff : MonoBehaviour
         public void Execute()
         {
             string err; //for viewing errors in debug
-            // while (true)
+
+            SocketData connect = new SocketData();
+            IPEndpointData connectIP = new IPEndpointData();
+            if (acceptSocket.Invoke(soc, connect, connectIP) == PResult.P_UnknownError) //check
             {
-
-                SocketData connect = new SocketData();
-                IPEndpointData connectIP = new IPEndpointData();
-                if (acceptSocket.Invoke(soc, connect, connectIP) == PResult.P_UnknownError) //check
+                if (!closeNetwork)
                 {
-                    if (!closeNetwork)
-                    {
-                        PrintError(err = getLastNetworkError());
-                        CreatePopups.SendPopup(err);
-                        return;
-                    }
-                    //  else
-                    //      break;
+                    PrintError(err = getLastNetworkError());
+                    CreatePopups.SendPopup(err);
+                    return;
                 }
-
-                connections.Add(new Client());
-                connections[connections.Count - 1].soc = connect;
-                connections[connections.Count - 1].prepared = new ClientPrepared();
-
-                //This is so BIG BRAIN its stupid
-                Unknown theurl = new Unknown();
-                IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
-                Marshal.StructureToPtr(theurl, tmp, true);
-                var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255));
-                CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255).Length);
-                Marshal.PtrToStructure(tmp, theurl);
-                Marshal.FreeHGlobal(tmp);
-                Marshal.FreeHGlobal(pTmpStr);
-                if (sendAllPacket(connect, theurl) == PResult.P_UnknownError)
-                    PrintError(err = getLastNetworkError());
-
-                if (sendAllPacket(connect, state) == PResult.P_UnknownError)
-                    PrintError(err = getLastNetworkError());
-
-                print(err = "new connection!");
-                CreatePopups.SendPopup(err);
-
-                // if (closeNetwork)
-                //     break;
             }
+
+            connections.Add(new Client());
+            connections[connections.Count - 1].soc = connect;
+            connections[connections.Count - 1].prepared = new ClientPrepared();
+
+            //This is so BIG BRAIN its stupid
+            Unknown theurl = new Unknown();
+            IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
+            Marshal.StructureToPtr(theurl, tmp, true);
+            var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, staticVideoURL.Length < Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1 ? staticVideoURL.Length : Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1));
+            CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, staticVideoURL.Length < Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1 ? staticVideoURL.Length : Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1).Length);
+            Marshal.PtrToStructure(tmp, theurl);
+            Marshal.FreeHGlobal(tmp);
+            Marshal.FreeHGlobal(pTmpStr);
+            if (sendAllPacket(connect, theurl) == PResult.P_UnknownError)
+                return;
+
+            if (sendAllPacket(connect, state) == PResult.P_UnknownError)
+                return;
+
+            print(err = "new connection!");
+            CreatePopups.SendPopup(err);
+
         }
     }
 
@@ -217,152 +211,147 @@ public class VideoStuff : MonoBehaviour
             IntPtr tmp = IntPtr.Zero;
             IntPtr unknown = IntPtr.Zero;
             int size;
-            //  while (true)
+
+            if (isClient)
             {
-                if (isClient)
+                //prevent unknown data collection
+                if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
                 {
-                    //prevent unknown data collection
-                    if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+
+                    return;
+                }
+                if (soc.pollCount == 0)return;
+
+                recvAllPacket(soc, out size);
+                unknown = Marshal.AllocHGlobal(size);
+                Marshal.StructureToPtr(size, unknown, true);
+                if (recvAllPacket(soc, ref unknown, 4, size - 4) == PResult.P_Success)
+                {
+
+                    print("Received Packet!");
+                    switch (Marshal.PtrToStructure<Unknown>(unknown).type)
                     {
+                        case MessageType.ClientIndex:
+                            if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
 
-                        return;
+                            ClientIndex index = Marshal.PtrToStructure<ClientIndex>(unknown);
+                            Marshal.FreeHGlobal(tmp);
+
+                            break;
+                        case MessageType.PlayerState:
+                            if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
+
+                            PlayerState state = Marshal.PtrToStructure<PlayerState>(unknown);
+                            Marshal.FreeHGlobal(tmp);
+
+                            VideoStuff.state = state;
+                            stateReceived = true;
+                            break;
+                        case MessageType.ClientPrepared:
+                            if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
+
+                            ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(unknown);
+                            Marshal.FreeHGlobal(tmp);
+
+                            resume = true;
+                            break;
+                        default:
+                            try
+                            {
+                                string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
+                                Marshal.FreeHGlobal(tmp);
+
+                                if (url.Contains("https://") || url.Contains("http://"))
+                                    staticVideoURL = url;
+                            }
+                            catch {}
+                            break;
                     }
-                    if (soc.pollCount == 0)return;
+                }
+                else
+                if (!closeNetwork)
+                    PrintError(err = getLastNetworkError());
 
-                    recvAllPacket(soc, out size);
+                Marshal.FreeHGlobal(unknown);
+            }
+            else //server
+            {
+
+                for (int index = 0; index < connections.Count; index++)
+                {
+                    //helps to minimize crashes
+                    networkWaitForSeconds(0.2f);
+
+                    if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                    {
+                        PrintError(err = getLastNetworkError());
+                        if (closeNetwork)
+                            break;
+
+                        continue;
+                    }
+                    else if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_Disconnection)
+                    {
+                        try
+                        {
+                            connections.RemoveAt(index--); //removes any connections that do not exist
+                            print(err = "Connection removed!!");
+                            CreatePopups.SendPopup(err);
+
+                        }
+                        catch { /*just incase*/ }
+                        continue;
+                    }
+
+                    if (connections[index].soc.pollCount == 0)continue;
+
+                    recvAllPacket(connections[index].soc, out size);
                     unknown = Marshal.AllocHGlobal(size);
                     Marshal.StructureToPtr(size, unknown, true);
-                    if (recvAllPacket(soc, ref unknown, 4, size - 4) == PResult.P_Success)
-                    {
 
+                    if (recvAllPacket(connections[index].soc, ref unknown, 4, size - 4) == PResult.P_Success)
+                    {
                         print("Received Packet!");
                         switch (Marshal.PtrToStructure<Unknown>(unknown).type)
                         {
-                            case MessageType.ClientIndex:
-                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
-
-                                ClientIndex index = Marshal.PtrToStructure<ClientIndex>(unknown);
-                                Marshal.FreeHGlobal(tmp);
-
-                                break;
                             case MessageType.PlayerState:
-                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
 
                                 PlayerState state = Marshal.PtrToStructure<PlayerState>(unknown);
                                 Marshal.FreeHGlobal(tmp);
 
+                                while (stateReceived); //this is correct 
                                 VideoStuff.state = state;
+
+                                for (int a = 0; a < connections.Count; ++a)
+                                    connections[a].prepared.playerReady = false;
+
                                 stateReceived = true;
                                 break;
+
                             case MessageType.ClientPrepared:
-                                if (size != Marshal.PtrToStructure<Unknown>(unknown).size)return;
 
                                 ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(unknown);
                                 Marshal.FreeHGlobal(tmp);
 
-                                resume = true;
+                                connections[index].prepared = prep;
                                 break;
                             default:
-                                try
-                                {
-                                    string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
-                                    Marshal.FreeHGlobal(tmp);
 
-                                    if (url.Contains("https://") || url.Contains("http://"))
-                                        staticVideoURL = url;
-                                }
-                                catch {}
+                                string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
+                                Marshal.FreeHGlobal(tmp);
+
+                                staticVideoURL = url;
                                 break;
                         }
-                    }
-                    else
-                    if (!closeNetwork)
-                        PrintError(err = getLastNetworkError());
-
-                    Marshal.FreeHGlobal(unknown);
-                }
-                else //server
-                {
-
-                    for (int index = 0; index < connections.Count; index++)
-                    {
-                        //helps to minimize crashes
-                        networkWaitForSeconds(0.2f);
-
-                        if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
-                        {
-                            PrintError(err = getLastNetworkError());
-                            if (closeNetwork)
-                                break;
-
-                            continue;
-                        }
-                        else if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_Disconnection)
-                        {
-                            try
-                            {
-                                connections.RemoveAt(index--); //removes any connections that do not exist
-                                print(err = "Connection removed!!");
-                                CreatePopups.SendPopup(err);
-
-                            }
-                            catch { /*just incase*/ }
-                            continue;
-                        }
-
-                        if (connections[index].soc.pollCount == 0)continue;
-
-                        recvAllPacket(connections[index].soc, out size);
-                        unknown = Marshal.AllocHGlobal(size);
-                        Marshal.StructureToPtr(size, unknown, true);
-
-                        if (recvAllPacket(connections[index].soc, ref unknown, 4, size - 4) == PResult.P_Success)
-                        {
-                            print("Received Packet!");
-                            switch (Marshal.PtrToStructure<Unknown>(unknown).type)
-                            {
-                                case MessageType.PlayerState:
-
-                                    PlayerState state = Marshal.PtrToStructure<PlayerState>(unknown);
-                                    Marshal.FreeHGlobal(tmp);
-
-                                    while (stateReceived); //this is correct 
-                                    VideoStuff.state = state;
-
-                                    for (int a = 0; a < connections.Count; ++a)
-                                        connections[a].prepared.playerReady = false;
-
-                                    stateReceived = true;
-                                    break;
-
-                                case MessageType.ClientPrepared:
-
-                                    ClientPrepared prep = Marshal.PtrToStructure<ClientPrepared>(unknown);
-                                    Marshal.FreeHGlobal(tmp);
-
-                                    connections[index].prepared = prep;
-                                    break;
-                                default:
-
-                                    string url = Marshal.PtrToStringAnsi(unknown + Marshal.SizeOf<Packet>());
-                                    Marshal.FreeHGlobal(tmp);
-
-                                    staticVideoURL = url;
-                                    break;
-                            }
-                            if (closeNetwork)
-                                break;
-                        }
-                        else if (!closeNetwork)
-                            PrintError(err = getLastNetworkError());
-
                         if (closeNetwork)
                             break;
                     }
-                }
+                    else if (!closeNetwork)
+                        PrintError(err = getLastNetworkError());
 
-                //  if (closeNetwork)
-                //      break;
+                    if (closeNetwork)
+                        break;
+                }
             }
         }
     }
@@ -518,8 +507,8 @@ public class VideoStuff : MonoBehaviour
                         Unknown theurl = new Unknown();
                         IntPtr tmp = Marshal.AllocHGlobal(theurl.size);
                         Marshal.StructureToPtr(theurl, tmp, true);
-                        var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255));
-                        CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, staticVideoURL.Length < 255 ? staticVideoURL.Length : 255).Length);
+                        var pTmpStr = Marshal.StringToHGlobalAnsi(staticVideoURL.Substring(0, staticVideoURL.Length < Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1 ? staticVideoURL.Length : Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1));
+                        CopyMemory((tmp + Marshal.SizeOf<Packet>()), (pTmpStr), (uint)staticVideoURL.Substring(0, staticVideoURL.Length < Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1 ? staticVideoURL.Length : Marshal.SizeOf<Unknown>() - Marshal.SizeOf<Packet>() - 1).Length);
                         Marshal.PtrToStructure(tmp, theurl);
                         Marshal.FreeHGlobal(tmp);
                         Marshal.FreeHGlobal(pTmpStr);
@@ -769,6 +758,7 @@ public class VideoStuff : MonoBehaviour
             hndReceive.Complete();
             hndAccept.Complete();
         }
+        connections.Clear();
         closeNetwork = false;
     }
 
