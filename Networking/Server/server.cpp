@@ -146,6 +146,7 @@ int main()
 	cin >> port;
 	std::thread snd(sendMesages);
 	std::thread msg(recvMesages);
+
 	if(Network::init())
 	{
 		IPEndpointData endp = IPEndpoint::createIPEndpoint(ip.data(), port, IPVersion::IPv4);
@@ -181,8 +182,10 @@ int main()
 						if(Socket::acceptSocket(sock, newSock.back()) != PResult::P_Success)
 							puts("Error");
 						else
+						{
 							puts("Done");
-
+							continue;
+						}
 
 						puts(LastNetworkError::GetLastError().data());
 					}

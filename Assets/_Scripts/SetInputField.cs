@@ -59,7 +59,7 @@ public class SetInputField : MonoBehaviour
         if (!set)
         {
             tmp = GetComponent<TMP_InputField>().text;
-            tmp = tmp == null ? "" : tmp;
+            tmp = tmp ?? "";
             refreshPublicIP();
         }
         else

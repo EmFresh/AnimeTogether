@@ -74,9 +74,10 @@ Vid Player Server/
 [Aa]ssets/SimpleWebBrowser/PluginServer/x64/databases-incognito.meta
 AnimeTogether/
 !ProjectSettings.asset
-
 AnimeTogether Build/
-
 Assets/My Profile/
-
 Assets/My Profile.meta
+Networking/Client/x64/
+Networking/Networking/Junck/
+Networking/Server/x64/
+Networking/x64/

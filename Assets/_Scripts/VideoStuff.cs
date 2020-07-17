@@ -20,7 +20,7 @@ public class VideoStuff : MonoBehaviour
     #region Variables
 
     #region Public
-
+    public bool inMenu = false;
     //   [Foldout("Setable Objects", true)]
     //   [InitializationField]
     public VideoPlayer player;
@@ -167,12 +167,16 @@ public class VideoStuff : MonoBehaviour
 
             SocketData connect = new SocketData();
             IPEndpointData connectIP = new IPEndpointData();
+
             if (acceptSocket.Invoke(soc, connect, connectIP) == PResult.P_UnknownError) //check
             {
                 if (!closeNetwork)
                 {
-                    PrintError(err = getLastNetworkError());
-                    CreatePopups.SendPopup(err);
+                    if (Marshal.PtrToStringAnsi(connectIP.m_ipString) == "")
+                    {
+                        PrintError(err = getLastNetworkError());
+                        CreatePopups.SendPopup(err);
+                    }
                     return;
                 }
             }
@@ -376,7 +380,8 @@ public class VideoStuff : MonoBehaviour
 
     void Awake()
     {
-
+        if (inMenu)
+            return;
         setVideoVariables();
 
         state = new PlayerState();
@@ -423,7 +428,7 @@ public class VideoStuff : MonoBehaviour
         initNetworkPlugin();
         initNetwork();
 
-        ip = createIPEndpointData.Invoke(isClient ? ipAddress : "", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
+        ip = createIPEndpointData.Invoke(isClient ? ipAddress : "0", (short)port, isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         soc = createSocketData.Invoke(isIPv6 ? IPVersion.IPv6 : IPVersion.IPv4);
         string err;
 
@@ -468,11 +473,16 @@ public class VideoStuff : MonoBehaviour
 
     }
 
-    void OnEnable() =>
-        controls.VideoPlayer.Enable();
-    void OnDisable() =>
-        controls.VideoPlayer.Disable();
-
+    void OnEnable()
+    {
+        if (!inMenu)
+            controls.VideoPlayer.Enable();
+    }
+    void OnDisable()
+    {
+        if (!inMenu)
+            controls.VideoPlayer.Disable();
+    }
     void Update()
     {
 
@@ -487,7 +497,8 @@ public class VideoStuff : MonoBehaviour
             if (hndReceive.IsCompleted)
                 hndReceive = jobReceive.Schedule();
         }
-
+        if (inMenu)
+            return;
         //receiving video url
         if (source == VideoSource.Url)
         {
