@@ -2,14 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using HtmlAgilityPack;
+
 //using MyBox;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Audio;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using static MyNetworking;
@@ -53,6 +50,7 @@ public class VideoStuff : MonoBehaviour
     [Tooltip("Set seek speed in seconds")]
     public float seekSpeed = 5;
     [Tooltip("Set intro skip in seconds")] public float introSkip = 85; //1:25
+    public bool seekInProgress { get; private set; } = false;
     #endregion
 
     #region Private/Internal
@@ -60,6 +58,7 @@ public class VideoStuff : MonoBehaviour
     RenderTexture tmpTex;
     Controls controls;
     bool isPrepared = false;
+    double deltaSeek = 0;
     static short index = 0;
     static PlayerState state;
     static bool stateReceived = false, closeNetwork = false, resume = false;
@@ -485,7 +484,6 @@ public class VideoStuff : MonoBehaviour
     }
     void Update()
     {
-
         string err;
 
         if (isNetworkInit)
@@ -497,6 +495,7 @@ public class VideoStuff : MonoBehaviour
             if (hndReceive.IsCompleted)
                 hndReceive = jobReceive.Schedule();
         }
+
         if (inMenu)
             return;
         //receiving video url
@@ -553,6 +552,9 @@ public class VideoStuff : MonoBehaviour
             if (stateReceived)
             {
                 double delayTime = DateTime.Now.Subtract(new DateTime(state.timeStamp)).TotalSeconds;
+
+                deltaSeek = player.time - (state.pos + (false ? delayTime : 0));
+                deltaSeek = Math.Abs(deltaSeek); //make delta positive
 
                 player.time = state.pos + (false ? delayTime : 0);
 
@@ -623,8 +625,12 @@ public class VideoStuff : MonoBehaviour
     }
     void VideoSeekComplete()
     {
-        print("Video seek compleated!!");
-        CreatePopups.SendPopup("Video seek compleated!!");
+
+        if (deltaSeek > 1)
+        {
+            print("Video seek compleated!!");
+            CreatePopups.SendPopup("Video seek compleated!!");
+        }
 
         if (!isClient) //server
         {
@@ -655,6 +661,7 @@ public class VideoStuff : MonoBehaviour
         }
 
         isPrepared = true;
+        seekInProgress = false;
     }
     void updateState()
     {
@@ -667,7 +674,7 @@ public class VideoStuff : MonoBehaviour
 
     public void playNPause()
     {
-        if (!isClient)
+        if (!isClient) //Server
             stateReceived = true;
 
         updateState();
@@ -677,60 +684,29 @@ public class VideoStuff : MonoBehaviour
             sendAllPacket(soc, state);
 
     }
-    public void skipIntro()
+
+    public void seek(float position)
     {
-        if (!isClient)
+        seekInProgress = true;
+        if (!isClient) //server
             stateReceived = true;
 
         updateState();
-        state.pos = Mathf.Clamp((float)player.time + introSkip, 0, (float)player.length);
         state.seek = true;
+        state.pos = Mathf.Clamp(position, 0, (float)player.length);
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
             sendAllPacket(soc, state);
 
     }
-    public void unskipIntro()
-    {
-        if (!isClient)
-            stateReceived = true;
-
-        updateState();
-        state.pos = Mathf.Clamp((float)player.time - introSkip, 0, (float)player.length);
-        state.seek = true;
-        int size = Marshal.SizeOf<PlayerState>();
-        if (isClient)
-            sendAllPacket(soc, state);
-
-    }
-    public void seekL()
-    {
-        if (!isClient)
-            stateReceived = true;
-
-        updateState();
-        state.seek = true;
-        state.pos = Mathf.Clamp((float)player.time - seekSpeed, 0, (float)player.length);
-        int size = Marshal.SizeOf<PlayerState>();
-        if (isClient)
-            sendAllPacket(soc, state);
-
-    }
-    public void seekR()
-    {
-
-        if (!isClient)
-            stateReceived = true;
-
-        updateState();
-        state.seek = true;
-        state.pos = Mathf.Clamp((float)player.time + seekSpeed, 0, (float)player.length);
-        int size = Marshal.SizeOf<PlayerState>();
-        if (isClient)
-
-            sendAllPacket(soc, state);
-
-    }
+    public void skipIntro() =>
+        seek((float)player.time + introSkip);
+    public void unskipIntro() =>
+        seek((float)player.time - introSkip);
+    public void seekL() =>
+        seek((float)player.time - seekSpeed);
+    public void seekR() =>
+        seek((float)player.time + seekSpeed);
 
     public void volUp()
     {
