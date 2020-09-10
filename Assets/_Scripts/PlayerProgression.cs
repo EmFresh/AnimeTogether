@@ -21,7 +21,7 @@ public class PlayerProgression : MonoBehaviour
         if (!draging && !videoPlayer.GetComponent<VideoStuff>().seekInProgress)
         {
             GetComponent<Slider>().maxValue = (float)videoPlayer.GetComponent<VideoStuff>().player.length;
-            GetComponent<Slider>().value = (float)videoPlayer.GetComponent<VideoStuff>().player.time;
+            GetComponent<Slider>().value = Mathf.Clamp((float)videoPlayer.GetComponent<VideoStuff>().player.time, 0.01f, GetComponent<Slider>().maxValue);
         }
 
         var times = gameObject.GetComponentsInChildren<TMP_Text>();
