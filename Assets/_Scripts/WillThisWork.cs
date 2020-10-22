@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class WillThisWork : MonoBehaviour
 {
     public GameObject isClient;
-    public GameObject videoUrl;
+    public TMP_InputField videoUrl,path,file;
 
     // Start is called before the first frame update
     void Start()
@@ -16,9 +16,22 @@ public class WillThisWork : MonoBehaviour
         GetComponent<TMP_Dropdown>().onValueChanged.AddListener(onValueChanged);
     }
 
+    private void Update()
+    {
+        if (GetComponent<TMP_Dropdown>().IsExpanded)
+        {
+            videoUrl.interactable = false;
+            path.interactable = false;
+            file.interactable = false;
+        } else{
+            videoUrl.interactable = true;
+            path.interactable = true;
+            file.interactable = true;
+        }
+    }
     void onValueChanged(int val)
     {
-        videoUrl.SetActive(!isClient.GetComponent<Toggle>().isOn);
+        videoUrl.gameObject.SetActive(!isClient.GetComponent<Toggle>().isOn);
 
     }
 }

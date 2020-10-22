@@ -32,7 +32,7 @@ public static class MyNetworking
         P_UnknownError,
         P_Disconnection
     }
-    public enum EventsPoll
+    public enum EventPoll
     {
         EP_RDBAND = 0x0200, //Priority band (out-of-band) data may be read without blocking.
         EP_RDNORM = 0x0100, //Normal data may be read without blocking.
@@ -40,7 +40,8 @@ public static class MyNetworking
         EP_IN = EP_RDBAND | EP_RDNORM, //combination of the EPRDNORM and EPRDBAND
         EP_OUT = EP_WRNORM, //same as the EPWRNORM
     }
-    public enum REventsPoll
+
+    public enum REventPoll
     {
         REP_ERR = 0x0001, //An error has occurred.
         REP_NVAL = 0x0004, //An invalid socket was used.
