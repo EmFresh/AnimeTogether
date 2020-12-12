@@ -174,7 +174,7 @@ public class VideoStuff : MonoBehaviour
                     if (Marshal.PtrToStringAnsi(connectIP.m_ipString) == "")
                     {
                         PrintError(err = getLastNetworkError());
-                        CreatePopups.SendPopup(err);
+                        CreatePopups.SendPopup(err, false);
                     }
                     return;
                 }
@@ -199,7 +199,7 @@ public class VideoStuff : MonoBehaviour
             if (sendAllPacket(connect, state) == PResult.P_UnknownError)
                 return;
 
-            print(err = "new connection!");
+            err = "new connection!";
             CreatePopups.SendPopup(err);
 
         }
@@ -298,7 +298,7 @@ public class VideoStuff : MonoBehaviour
                         try
                         {
                             connections.RemoveAt(index--); //removes any connections that do not exist
-                            print(err = "Connection removed!!");
+                            err = "Connection removed!!";
                             CreatePopups.SendPopup(err);
 
                         }
@@ -461,7 +461,7 @@ public class VideoStuff : MonoBehaviour
             {
                 jobReceive = new ReceiveNetworkJob();
                 hndReceive = jobReceive.Schedule();
-                print(err = "connected to host");
+                err = "connected to host";
                 CreatePopups.SendPopup(err);
 
             }
@@ -532,7 +532,7 @@ public class VideoStuff : MonoBehaviour
             else //client 
                 if (staticVideoURL != videoURL)
                 {
-                    print(err = "received new URL");
+                    err = "received new URL";
                     CreatePopups.SendPopup(err);
 
                     videoURL = staticVideoURL;
@@ -596,14 +596,13 @@ public class VideoStuff : MonoBehaviour
         string err;
         Debug.LogError(err = "Video Error Occurred: " + message);
 
-        CreatePopups.SendPopup(err);
-        print("attempting retry");
+        CreatePopups.SendPopup(err, false);
+        CreatePopups.SendPopup("attempting retry");
 
         source.Prepare();
     }
     void VideoReady()
     {
-        print("Video is prepared!!");
         CreatePopups.SendPopup("Video is prepared!!");
 
         ClientPrepared tmp = new ClientPrepared();
@@ -625,19 +624,13 @@ public class VideoStuff : MonoBehaviour
     }
     void VideoSeekComplete()
     {
-
-        if (deltaSeek > 1)
-        {
-            print("Video seek compleated!!");
-            CreatePopups.SendPopup("Video seek compleated!!");
-        }
-
         if (!isClient) //server
         {
             player.Pause(); //trying to start at the same time
 
             state.timeStamp = DateTime.Now.Ticks;
 
+            //send pause location to clients
             for (int index = 0; index < connections.Count; index++)
             {
                 connections[index].prepared.playerReady = false;
@@ -649,9 +642,7 @@ public class VideoStuff : MonoBehaviour
         tmp.playerReady = true;
 
         if (isClient)
-        {
             sendAllPacket(soc, tmp);
-        }
         else //Server
         {
             resume = true;
@@ -663,6 +654,7 @@ public class VideoStuff : MonoBehaviour
         isPrepared = true;
         seekInProgress = false;
     }
+
     void updateState()
     {
         state.isPaused = player.isPaused;
@@ -675,6 +667,7 @@ public class VideoStuff : MonoBehaviour
     public void playNPause()
     {
         if (!isClient) //Server
+
             stateReceived = true;
 
         updateState();
@@ -682,7 +675,6 @@ public class VideoStuff : MonoBehaviour
         int size = Marshal.SizeOf<PlayerState>();
         if (isClient)
             sendAllPacket(soc, state);
-
     }
 
     public void seek(float position)
