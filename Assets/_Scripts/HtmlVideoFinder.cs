@@ -18,7 +18,7 @@ public class HtmlVideoFinder : MonoBehaviour
         var list = browser2.Html.CssSelect("video");
 
         foreach (var node in list)
-            print(node);
+         CreatePopups.SendPopup(node);
     }
 
     // Update is called once per frame
