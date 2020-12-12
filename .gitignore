@@ -81,3 +81,5 @@ Networking/Client/x64/
 Networking/Networking/Junck/
 Networking/Server/x64/
 Networking/x64/
+
+*.orig
