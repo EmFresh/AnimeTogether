@@ -22,14 +22,18 @@ public class HtmlVideoFinder : MonoBehaviour
 
     struct FindURLJob : IJob
     {
-        //    ScrapingBrowser browser = new ScrapingBrowser();
-        //    // browser.NavigateToPage();
-        //    var browser2 = browser.NavigateToPage(new Uri(url));
-        //
-        //    var list = browser2.Html.CssSelect("video");
-        //
-        //    foreach (var node in list)
-        //CreatePopups.SendPopup(node);
+        public void Execute()
+        {
+          //  ScrapingBrowser browser = new ScrapingBrowser();
+          //  // browser.NavigateToPage();
+          //  var browser2 = browser.NavigateToPage(new Uri(url));
+//
+          //  var list = browser2.Html.CssSelect("video");
+//
+          //  foreach (var node in list)
+          //      CreatePopups.SendPopup(node);
+          //  throw new NotImplementedException();
+        }
     }
 
     /// <summary>
