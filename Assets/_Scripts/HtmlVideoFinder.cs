@@ -22,83 +22,42 @@ public class HtmlVideoFinder : MonoBehaviour
 
     struct FindURLJob : IJob
     {
-        public void Execute()
-        {
-            try
-            {
-                driver.Navigate().GoToUrl(url);
-            }
-            catch
-            {
-                CreatePopups.SendPopup("Video URL Not Found");
-                return;
-            }
-            ReadOnlyCollection<IWebElement> ele = driver.FindElements(By.TagName("iframe"));
-            // driver.Capabilities.BrowserName;
-
-            string str;
-
-            // OpenQA.Selenium.
-            bool noURLFound = true;
-            foreach (var element in ele)
-            {
-                try
-                {
-                    str = element.GetAttribute("src");
-                }
-                catch { continue; }
-
-                //for mp4upload
-                if (str.Contains("mp4upload"))
-                {
-                    driver.SwitchTo().Frame(element);
-
-                    try
-                    {
-                        InitSettings.videoURL = driver.FindElement(By.TagName("source")).GetAttribute("src");
-
-                        CreatePopups.SendPopup("Found video URL!!!");
-                        setField = true;
-                        noURLFound = false;
-                    }
-                    catch {}
-
-                    //break;
-                    driver.SwitchTo().ParentFrame();
-                }
-            }
-
-            if (noURLFound)
-                CreatePopups.SendPopup("No video URL Found");
-
-        }
+        //    ScrapingBrowser browser = new ScrapingBrowser();
+        //    // browser.NavigateToPage();
+        //    var browser2 = browser.NavigateToPage(new Uri(url));
+        //
+        //    var list = browser2.Html.CssSelect("video");
+        //
+        //    foreach (var node in list)
+        //CreatePopups.SendPopup(node);
     }
-#if UNITY_EDITOR
-    const string bin = "";
-#else
-    const string bin = "/..";
-#endif
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
     {
-        if (driver == null)
-        {
-            ChromeOptions options = new ChromeOptions();
-            options.AddArgument("--headless");
-            var service = ChromeDriverService.CreateDefaultService(Application.dataPath + bin);
-
-#if UNITY_EDITOR
-            service.HideCommandPromptWindow = true;
-#endif
-
-            driver = new ChromeDriver(service, options);
-
-            // ((ChromeDriver)driver).hide();
-        }
+        //        if (false)
+        //            if (driver == null)
+        //            {
+        //                ChromeOptions options = new ChromeOptions();
+        //                options.AddArgument("--headless");
+        //                var service = ChromeDriverService.CreateDefaultService(Application.dataPath + bin);
+        //
+        //#if UNITY_EDITOR
+        //                service.HideCommandPromptWindow = true;
+        //#endif
+        //
+        //                driver = new ChromeDriver(service, options);
+        //
+        //                // ((ChromeDriver)driver).hide();
+        //            }
     }
+#if UNITY_EDITOR
+    const string bin = "";
+#else
+    const string bin = "/..";
+#endif
 
     void Update()
     {
