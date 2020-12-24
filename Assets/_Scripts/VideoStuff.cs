@@ -64,7 +64,7 @@ public class VideoStuff : MonoBehaviour
     static bool stateReceived = false, closeNetwork = false, resume = false;
     static IPEndpointData ip;
     static SocketData soc;
-    static List<Client> connections = new List<Client>();
+    static public List<Client> connections { get; private set; } = new List<Client>();
 
     //  UnityWebRequest web;
     #endregion
@@ -218,7 +218,7 @@ public class VideoStuff : MonoBehaviour
             if (isClient)
             {
                 //prevent unknown data collection
-                if (pollEvents.Invoke(soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                if (pollEvents.Invoke(soc, 10, (int)EventPoll.EP_IN) == PResult.P_UnknownError)
                 {
 
                     return;
@@ -285,7 +285,7 @@ public class VideoStuff : MonoBehaviour
                     //helps to minimize crashes
                     networkWaitForSeconds(0.2f);
 
-                    if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_UnknownError)
+                    if (pollEvents.Invoke(connections[index].soc, 10, (int)EventPoll.EP_IN) == PResult.P_UnknownError)
                     {
                         PrintError(err = getLastNetworkError());
                         if (closeNetwork)
@@ -293,7 +293,7 @@ public class VideoStuff : MonoBehaviour
 
                         continue;
                     }
-                    else if (pollEvents.Invoke(connections[index].soc, 10, (int)EventsPoll.EP_IN) == PResult.P_Disconnection)
+                    else if (pollEvents.Invoke(connections[index].soc, 10, (int)EventPoll.EP_IN) == PResult.P_Disconnection)
                     {
                         try
                         {

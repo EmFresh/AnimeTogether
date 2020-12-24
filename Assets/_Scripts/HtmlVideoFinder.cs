@@ -21,7 +21,28 @@ public class HtmlVideoFinder : MonoBehaviour
          CreatePopups.SendPopup(node);
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Awake is called when the script instance is being loaded.
+    /// </summary>
+    void Awake()
+    {
+        if (false)
+            if (driver == null)
+            {
+                ChromeOptions options = new ChromeOptions();
+                options.AddArgument("--headless");
+                var service = ChromeDriverService.CreateDefaultService(Application.dataPath + bin);
+
+#if UNITY_EDITOR
+                service.HideCommandPromptWindow = true;
+#endif
+
+                driver = new ChromeDriver(service, options);
+
+                // ((ChromeDriver)driver).hide();
+            }
+    }
+
     void Update()
     {
 

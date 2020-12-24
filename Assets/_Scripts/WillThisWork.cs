@@ -7,8 +7,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(TMP_Dropdown))]
 public class WillThisWork : MonoBehaviour
 {
+    [Tooltip("Group of input fields to be switched")]
+    public CanvasGroup group;
     public GameObject isClient;
-    public GameObject videoUrl;
+    public TMP_InputField videoUrl;
 
     // Start is called before the first frame update
     void Start()
@@ -16,9 +18,21 @@ public class WillThisWork : MonoBehaviour
         GetComponent<TMP_Dropdown>().onValueChanged.AddListener(onValueChanged);
     }
 
+    private void Update()
+    {
+        if (GetComponent<TMP_Dropdown>().IsExpanded)
+        {
+            group.blocksRaycasts = false;
+            group.interactable = false;            
+        }
+        else
+        {
+            group.blocksRaycasts = true;
+            group.interactable = true;
+        }
+    }
     void onValueChanged(int val)
     {
-        videoUrl.SetActive(!isClient.GetComponent<Toggle>().isOn);
-
+        videoUrl.gameObject.SetActive(!isClient.GetComponent<Toggle>().isOn);
     }
 }
