@@ -32,7 +32,7 @@ public static class MyNetworking
         P_UnknownError,
         P_Disconnection
     }
-    public enum EventsPoll
+    public enum EventPoll
     {
         EP_RDBAND = 0x0200, //Priority band (out-of-band) data may be read without blocking.
         EP_RDNORM = 0x0100, //Normal data may be read without blocking.
