@@ -47,9 +47,8 @@ public class VideoStuff : MonoBehaviour
     //    [ConditionalField("source", false, VideoSource.VideoClip)]
     public string file;
     public static string staticVideoURL;
-    [Tooltip("Set seek speed in seconds")]
-    public float seekSpeed = 5;
-    [Tooltip("Set intro skip in seconds")] public float introSkip = 85; //1:25
+    public float seekSpeed { get; set; } = 5;
+    public float introSkip { get; set; } = 85; //1:25
     public bool seekInProgress { get; private set; } = false;
     #endregion
 

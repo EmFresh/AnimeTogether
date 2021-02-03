@@ -6,7 +6,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class FadeInOut : MonoBehaviour
 {
-    public bool enableFadeIn = true;
+    public bool enableFadeIn = true, enableAutoFadeOut = true;
+
     public float delay, fadeoutTime, fadeinTime;
     float currentTime = 0, fadeTime = 1;
     bool isFadeOut = true;
@@ -32,14 +33,20 @@ public class FadeInOut : MonoBehaviour
     {
         currentTime += Time.deltaTime;
 
-        if (currentTime >= delay && isFadeOut)
+        if (currentTime >= delay && isFadeOut && enableAutoFadeOut)
             InvokeRepeating("fadeOut", 0, .01f);
     }
 
-    void fadeInInvoke()
+    public void fadeInInvoke()
     {
         if (!IsInvoking("fadeIn"))
             InvokeRepeating("fadeIn", 0, .01f);
+    }
+
+    public void fadeOutInvoke()
+    {
+        if (!IsInvoking("fadeOut"))
+            InvokeRepeating("fadeOut", 0, .01f);
     }
 
     public void fadeIn()
@@ -55,6 +62,7 @@ public class FadeInOut : MonoBehaviour
             isFadeOut = true;
             fadeTime = fadeoutTime;
             GetComponent<CanvasGroup>().alpha = 1;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
             CancelInvoke("fadeIn");
         }
     }
@@ -71,6 +79,7 @@ public class FadeInOut : MonoBehaviour
             cg.blocksRaycasts = false; //block the buttons from being pressed
             fadeTime = 0;
             GetComponent<CanvasGroup>().alpha = 0;
+            GetComponent<CanvasGroup>().blocksRaycasts = false;
             CancelInvoke("fadeOut");
         }
     }

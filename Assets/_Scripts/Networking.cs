@@ -182,7 +182,10 @@ public static class MyNetworking
     ///</summary>
     private static getLastNetworkErrorDelegate getlastnetworkerror;
     private delegate IntPtr getLastNetworkErrorDelegate(int idk);
-    public static string getLastNetworkError()
+    ///<summary>
+    ///gets the last error that happened
+    ///</summary>
+     public static string getLastNetworkError()
     {
         IntPtr ptr = getlastnetworkerror(0);
         return Marshal.PtrToStringAnsi(ptr);
@@ -213,7 +216,7 @@ public static class MyNetworking
     ///Shutdown Winsoc
     ///</summary>
     private static shutdownNetworkDelegate shutdownnetwork;
-    private delegate bool shutdownNetworkDelegate(int a);
+    private delegate bool shutdownNetworkDelegate(int a);    
     ///<summary>
     ///Shutdown Winsoc
     ///</summary>
