@@ -1,71 +1,84 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using static MyNetworking;
 
 //makes an extention for string
 public static class clip
 {
-    public static void CopyToClipboard(this string s)
-    {
-        TextEditor te = new TextEditor();
-        te.text = s;
-        te.SelectAll();
-        te.Copy();
-        CreatePopups.SendPopup("Copied to clipboard");
-    }
+	public static void CopyToClipboard(this string s)
+	{
+		TextEditor te = new TextEditor();
+		te.text = s;
+		te.SelectAll();
+		te.Copy();
+		CreatePopups.SendPopup("Copied to clipboard");
+	}
 }
 
 [RequireComponent(typeof(TMP_InputField))]
 public class SetInputField : MonoBehaviour
 {
-    static string tmp = "";
-    bool ipv6 = false;
+	static string tmp = "";
+	bool ipv6 = false;
 
-    void Awake()
-    {
-        setToPublicIP(false);
-    }
+	string str;
+	public void createWindow(TMP_InputField text)
+	{
 
-    public void copyPublicIP()
-    {
-        GetComponent<TMP_InputField>().text.CopyToClipboard();
-    }
+		text.text = EditorUtility.OpenFilePanelWithFilters("IDK A TItle?", "", new[] { "All Files", "*", "Images", "png,jpg,webp", "Videos", "mp4,mkv" });
 
-    public void setToIpv6(bool val)
-    {
-        ipv6 = val;
-        if (!GetComponent<TMP_InputField>().interactable)
-            refreshPublicIP();
-    }
+		CreatePopups.SendPopup($"THe new File: {text.text}");
+	}
 
-    public void refreshPublicIP()
-    {
-        CreatePopups.SendPopup("waiting on Refresh...");
-        Invoke("getPublicIP", .2f);
-    }
-    void getPublicIP()
-    {
-        GetComponent<TMP_InputField>().text = ipv6 ? GetPublicIPv6Address() : GetPublicIPv4Address();
-        if (GetComponent<TMP_InputField>().text != "")
-            CreatePopups.SendPopup("Refreshed public IP");
-        else
-            CreatePopups.SendPopup("Refreshed failed");
-    }
 
-    public void setToPublicIP(bool set)
-    {
-        if (!set)
-        {
-            tmp = GetComponent<TMP_InputField>().text;
-            tmp = tmp ?? "";
-            refreshPublicIP();
-        }
-        else
-        {
-            GetComponent<TMP_InputField>().text = tmp;
-        }
-    }
+	void Awake()
+	{
+		setToPublicIP(false);
+		//name
+	}
+
+	public void copyPublicIP()
+	{
+		GetComponent<TMP_InputField>().text.CopyToClipboard();
+	}
+
+	public void setToIpv6(bool val)
+	{
+		ipv6 = val;
+		if(!GetComponent<TMP_InputField>().interactable)
+			refreshPublicIP();
+	}
+
+	public void refreshPublicIP()
+	{
+		CreatePopups.SendPopup("waiting on Refresh...");
+		Invoke("getPublicIP", .2f);
+	}
+	void getPublicIP()
+	{
+		GetComponent<TMP_InputField>().text = ipv6 ? GetPublicIPv6Address() : GetPublicIPv4Address();
+		if(GetComponent<TMP_InputField>().text != "")
+			CreatePopups.SendPopup("Refreshed public IP");
+		else
+			CreatePopups.SendPopup("Refreshed failed");
+	}
+
+	public void setToPublicIP(bool set)
+	{
+		if(!set)
+		{
+			tmp = GetComponent<TMP_InputField>().text;
+			tmp = tmp ?? "";
+			refreshPublicIP();
+		}
+		else
+		{
+			GetComponent<TMP_InputField>().text = tmp;
+		}
+	}
 
 }

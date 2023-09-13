@@ -57,12 +57,12 @@ public class FadeInOut : MonoBehaviour
         cg.blocksRaycasts = true; //enables the buttons to be pressed
 
         cg.alpha = Mathf.Clamp((fadeTime += Time.deltaTime) / fadeinTime, 0, 1);
-        if (GetComponent<CanvasGroup>().alpha >= 1)
+        if (cg.alpha >= 1)
         {
+            cg.alpha = 1;
+            cg.blocksRaycasts = true;
             isFadeOut = true;
             fadeTime = fadeoutTime;
-            GetComponent<CanvasGroup>().alpha = 1;
-            GetComponent<CanvasGroup>().blocksRaycasts = true;
             CancelInvoke("fadeIn");
         }
     }
@@ -74,12 +74,12 @@ public class FadeInOut : MonoBehaviour
         var cg = GetComponent<CanvasGroup>();
 
         cg.alpha = Mathf.Clamp((fadeTime -= Time.deltaTime) / fadeoutTime, 0, 1);
-        if (GetComponent<CanvasGroup>().alpha <= 0)
+        if (cg.alpha <= 0)
         {
             cg.blocksRaycasts = false; //block the buttons from being pressed
             fadeTime = 0;
-            GetComponent<CanvasGroup>().alpha = 0;
-            GetComponent<CanvasGroup>().blocksRaycasts = false;
+            cg.alpha = 0;
+            cg.blocksRaycasts = false;
             CancelInvoke("fadeOut");
         }
     }
